@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Örjan Carlborg — Strategic Analytics & Performance</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background: #07111d;
+      color: #f5f2ec;
+      font-family: 'Inter', sans-serif;
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    .container {
+      width: min(1280px, 92%);
+      margin: 0 auto;
+    }
+
+    h1, h2, h3 {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 400;
+      letter-spacing: -0.02em;
+    }
+
+    .gold {
+      color: #caa86a;
+    }
+
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 100;
+      background: rgba(7, 17, 29, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 24px 0;
+    }
+
+    .logo {
+      font-size: 2rem;
+      font-family: 'Cormorant Garamond', serif;
+      letter-spacing: 0.04em;
+    }
+
+    .tagline {
+      font-size: 0.8rem;
+      color: #caa86a;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+
+    nav ul {
+      display: flex;
+      gap: 36px;
+      list-style: none;
+    }
+
+    nav a {
+      color: #f5f2ec;
+      text-decoration: none;
+      font-size: 0.9rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      opacity: 0.85;
+      transition: 0.3s;
+    }
+
+    nav a:hover {
+      color: #caa86a;
+    }
+
+    .hero {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1.1fr 1fr;
+      align-items: center;
+      gap: 40px;
+      padding-top: 120px;
+      position: relative;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at center, rgba(23,45,78,0.45), transparent 60%);
+      pointer-events: none;
+    }
+
+    .hero-text {
+      position: relative;
+      z-index: 2;
+    }
+
+    .hero-kicker {
+      text-transform: uppercase;
+      letter-spacing: 0.3em;
+      font-size: 0.9rem;
+      color: #caa86a;
+      margin-bottom: 28px;
+    }
+
+    .hero h1 {
+      font-size: clamp(4rem, 8vw, 7rem);
+      line-height: 0.95;
+      margin-bottom: 32px;
+    }
+
+    .hero p {
+      max-width: 640px;
+      color: rgba(245,242,236,0.8);
+      font-size: 1.2rem;
+      margin-bottom: 40px;
+    }
+
+    .button {
+      display: inline-block;
+      padding: 18px 34px;
+      border: 1px solid #caa86a;
+      color: #f5f2ec;
+      text-decoration: none;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      font-size: 0.82rem;
+      transition: 0.3s;
+    }
+
+    .button:hover {
+      background: #caa86a;
+      color: #07111d;
+    }
+
+    .hero-image {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .hero-image img {
+      width: 100%;
+      max-width: 640px;
+      border-radius: 12px;
+      filter: grayscale(100%) contrast(1.05);
+      opacity: 0.92;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.45);
+    }
+
+    .stats {
+      background: #f5f2ec;
+      color: #07111d;
+      padding: 70px 0;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 40px;
+      text-align: center;
+    }
+
+    .stat-number {
+      font-size: 4rem;
+      font-family: 'Cormorant Garamond', serif;
+      margin-bottom: 12px;
+    }
+
+    .stat-label {
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      opacity: 0.75;
+    }
+
+    section {
+      padding: 120px 0;
+    }
+
+    .section-title {
+      margin-bottom: 70px;
+      max-width: 900px;
+    }
+
+    .section-kicker {
+      text-transform: uppercase;
+      letter-spacing: 0.28em;
+      color: #caa86a;
+      font-size: 0.82rem;
+      margin-bottom: 24px;
+    }
+
+    .section-title h2 {
+      font-size: clamp(3rem, 5vw, 5rem);
+      line-height: 1;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 30px;
+    }
+
+    .card {
+      border: 1px solid rgba(202,168,106,0.25);
+      padding: 42px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.02);
+      backdrop-filter: blur(8px);
+      transition: 0.3s;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(202,168,106,0.6);
+    }
+
+    .card h3 {
+      font-size: 2rem;
+      margin-bottom: 18px;
+    }
+
+    .card p {
+      color: rgba(245,242,236,0.78);
+    }
+
+    .profile-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 30px;
+    }
+
+    .profile-box {
+      background: #f5f2ec;
+      color: #07111d;
+      padding: 48px;
+      border-radius: 10px;
+    }
+
+    .profile-box h3 {
+      font-size: 2rem;
+      margin-bottom: 24px;
+    }
+
+    .profile-box ul {
+      padding-left: 20px;
+    }
+
+    .profile-box li {
+      margin-bottom: 14px;
+    }
+
+    .quote-section {
+      text-align: center;
+      background: linear-gradient(to bottom, #091525, #050c14);
+    }
+
+    .quote-section h2 {
+      font-size: clamp(3rem, 5vw, 5rem);
+      margin-bottom: 28px;
+    }
+
+    .quote-section p {
+      max-width: 760px;
+      margin: 0 auto 40px;
+      color: rgba(245,242,236,0.78);
+      font-size: 1.2rem;
+    }
+
+    footer {
+      border-top: 1px solid rgba(255,255,255,0.08);
+      padding: 50px 0;
+      color: rgba(245,242,236,0.7);
+    }
+
+    .footer-grid {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    @media (max-width: 1000px) {
+      .hero {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+
+      .hero p {
+        margin-inline: auto;
+      }
+
+      nav ul {
+        display: none;
+      }
+
+      .stats-grid,
+      .profile-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 700px) {
+      .stats-grid,
+      .profile-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero h1 {
+        font-size: 4rem;
+      }
+
+      section {
+        padding: 90px 0;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="container nav">
+    <div>
+      <div class="logo">ÖRJAN CARLBORG</div>
+      <div class="tagline">Strategic Analytics & Performance</div>
+    </div>
+
+    <nav>
+      <ul>
+        <li><a href="#hem">Hem</a></li>
+        <li><a href="#om">Om mig</a></li>
+        <li><a href="#kompetens">Kompetens</a></li>
+        <li><a href="#erfarenhet">Erfarenhet</a></li>
+        <li><a href="#kontakt">Kontakt</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<section class="container hero" id="hem">
+  <div class="hero-text">
+    <div class="hero-kicker">Analys · Strategi · Utveckling</div>
+
+    <h1>Från komplexitet till klarhet.</h1>
+
+    <p>
+      Jag hjälper organisationer och individer att fatta bättre beslut,
+      skapa struktur i komplexitet och utveckla hållbara resultat genom
+      analys, forskning, ekonomisk förståelse och strategiskt ledarskap.
+    </p>
+
+    <a href="#kontakt" class="button">Kontakta mig</a>
+  </div>
+
+  <div class="hero-image">
+    <img src="IMG_7677.jpeg" alt="Örjan Carlborg" />
+  </div>
+</section>
+
+<section class="stats">
+  <div class="container stats-grid">
+    <div>
+      <div class="stat-number">25+</div>
+      <div class="stat-label">Års erfarenhet</div>
+    </div>
+
+    <div>
+      <div class="stat-number">120+</div>
+      <div class="stat-label">Vetenskapliga publikationer</div>
+    </div>
+
+    <div>
+      <div class="stat-number">5 000+</div>
+      <div class="stat-label">Citeringar</div>
+    </div>
+
+    <div>
+      <div class="stat-number">25+</div>
+      <div class="stat-label">Mentorerade forskare</div>
+    </div>
+
+    <div>
+      <div class="stat-number">20+</div>
+      <div class="stat-label">År av ledarskap & handledning</div>
+    </div>
+  </div>
+</section>
+
+<section class="container" id="om">
+  <div class="section-title">
+    <div class="section-kicker">En unik kombination</div>
+    <h2>Vetenskaplig analys med strategisk och praktisk förståelse.</h2>
+  </div>
+
+  <div class="cards" id="kompetens">
+    
+    <!-- Klickbara kompetensområden / undersidor -->
+    <a href="#research-details" style="text-decoration:none;color:inherit;">
+    <div class="card">
+      <h3>Forskning & analys</h3>
+      <p>
+        Professor i beräkningsbaserad genomik med internationellt ledande
+        forskning inom statistisk modellering, AI och komplex dataanalys.
+      </p>
+      <p style="margin-top:20px;color:#caa86a;text-transform:uppercase;font-size:0.8rem;letter-spacing:0.12em;">
+        Läs mer →
+      </p>
+    </div>
+    </a>
+
+    <a href="#economics-details" style="text-decoration:none;color:inherit;">
+    <div class="card">
+      <h3>Ekonomi & redovisning</h3>
+      <p>
+        YH-utbildad redovisningsekonom med praktisk förståelse för bokföring,
+        ekonomistyrning, beskattning och verksamhetsanalys.
+      </p>
+      <p style="margin-top:20px;color:#caa86a;text-transform:uppercase;font-size:0.8rem;letter-spacing:0.12em;">
+        Läs mer →
+      </p>
+    </div>
+    </a>
+
+    <a href="#leadership-details" style="text-decoration:none;color:inherit;">
+    <div class="card">
+      <h3>Ledarskap & utveckling</h3>
+      <p>
+        Erfarenhet av att utveckla människor och prestation i miljöer med
+        höga krav på långsiktighet, struktur och kontinuerlig förbättring.
+      </p>
+      <p style="margin-top:20px;color:#caa86a;text-transform:uppercase;font-size:0.8rem;letter-spacing:0.12em;">
+        Läs mer →
+      </p>
+    </div>
+    </a>
+
+    <a href="#advisory-details" style="text-decoration:none;color:inherit;">
+    <div class="card">
+      <h3>Strategiskt beslutsstöd</h3>
+      <p>
+        Förmåga att omsätta komplex analys till tydliga strategier,
+        praktiska åtgärder och hållbara resultat.
+      </p>
+      <p style="margin-top:20px;color:#caa86a;text-transform:uppercase;font-size:0.8rem;letter-spacing:0.12em;">
+        Läs mer →
+      </p>
+    </div>
+    </a>
+  </div>
+</section>
+
+<section id="erfarenhet">
+  <div class="container profile-grid">
+
+    <div class="profile-box">
+      <h3>Akademisk bakgrund</h3>
+
+      <ul>
+        <li>Professor i Beräkningsbaserad Genomik</li>
+        <li>Uppsala universitet & SLU</li>
+        <li>Internationell forskning inom AI & dataanalys</li>
+        <li>Publikationer i Nature Genetics, PNAS m.fl.</li>
+        <li>H-index 43 (Google Scholar)</li>
+      </ul>
+    </div>
+
+    <div class="profile-box">
+      <h3>Ekonomisk kompetens</h3>
+
+      <ul>
+        <li>Redovisningsekonom (YH)</li>
+        <li>Bokföring & bokslut</li>
+        <li>Ekonomistyrning & rapportering</li>
+        <li>Beskattning & moms</li>
+        <li>Praktisk verksamhetsförståelse</li>
+      </ul>
+    </div>
+
+    <div class="profile-box">
+      <h3>Ledarskap & utveckling</h3>
+
+      <ul>
+        <li>Lång erfarenhet av coachning och mentorskap</li>
+        <li>Utveckling av individer och team över tid</li>
+        <li>Prestationsmiljöer med höga krav</li>
+        <li>Strategi, progression och hållbar utveckling</li>
+        <li>Erfarenhet från både forskning och idrott</li>
+      </ul>
+    </div>
+
+  </div>
+</section>
+
+<section class="container" id="research-details">
+  <div class="section-title">
+    <div class="section-kicker">Forskning & analys</div>
+    <h2>Internationellt etablerad forskning inom komplex analys.</h2>
+  </div>
+
+  <div class="cards">
+    <div class="card">
+      <h3>Forskningsprofil</h3>
+      <p>
+        Tidigare professor i Beräkningsbaserad Genomik vid Uppsala universitet
+        och professor i Computational Genetics vid SLU.
+      </p>
+    </div>
+
+    <div class="card">
+      <h3>Specialisering</h3>
+      <p>
+        Forskning inom statistisk modellering, genetiska interaktioner,
+        högdimensionell dataanalys och AI-relaterade analysmetoder.
+      </p>
+    </div>
+
+    <div class="card">
+      <h3>Internationell publicering</h3>
+      <p>
+        Publikationer i bland annat Nature Genetics, Nature Reviews Genetics,
+        PNAS, Trends in Genetics och PLoS Genetics.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="container" id="economics-details">
+  <div class="section-title">
+    <div class="section-kicker">Ekonomi & redovisning</div>
+    <h2>Ekonomisk förståelse med analytisk grund.</h2>
+  </div>
+
+  <div class="cards">
+    <div class="card">
+      <h3>Redovisning</h3>
+      <p>
+        Utbildning inom löpande bokföring, bokslut, moms,
+        ekonomistyrning och praktisk redovisning.
+      </p>
+    </div>
+
+    <div class="card">
+      <h3>Verksamhetsförståelse</h3>
+      <p>
+        Kombinationen av ekonomisk förståelse och avancerad analys
+        ger stöd för strategiska och datadrivna beslut.
+      </p>
+    </div>
+
+    <div class="card">
+      <h3>Analytiskt perspektiv</h3>
+      <p>
+        Erfarenhet av att arbeta strukturerat med komplex information,
+        modellering och beslutsunderlag.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="container" id="leadership-details">
+  <div class="section-title">
+    <div class="section-kicker">Ledarskap & utveckling</div>
+    <h2>Utveckling av människor, prestation och långsiktig progression.</h2>
+  </div>
+
+  <div class="cards">
+    <div class="card">
+      <h3>Mentorskap</h3>
+      <p>
+        Mångårig erfarenhet av handledning, coachning och utveckling av
+        individer i prestationsmiljöer.
+      </p>
+    </div>
+
+    <div class="card">
+      <h3>Forskningsledning</h3>
+      <p>
+        Ledde forskningsgrupper och internationella projekt med ansvar
+        för strategi, utveckling och finansiering.
+      </p>
+    </div>
+
+    <div class="card">
+      <h3>Prestationsmiljöer</h3>
+      <p>
+        Erfarenheter från både akademi och idrott har gett ett starkt
+        perspektiv på hållbar hög prestation över tid.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="container" id="advisory-details">
+  <div class="section-title">
+    <div class="section-kicker">Strategiskt beslutsstöd</div>
+    <h2>Analys och rådgivning för komplexa miljöer.</h2>
+  </div>
+
+  <div class="cards">
+    <div class="card">
+      <h3>AI & dataanalys</h3>
+      <p>
+        Erfarenhet av avancerad modellering, mönsteridentifiering och
+        analys av komplexa datasystem.
+      </p>
+    </div>
+
+    <div class="card">
+      <h3>Strategisk analys</h3>
+      <p>
+        Hjälper organisationer att skapa struktur, förstå komplexitet
+        och fatta bättre beslut.
+      </p>
+    </div>
+
+    <div class="card">
+      <h3>Tvärvetenskapligt perspektiv</h3>
+      <p>
+        Kombinationen av forskning, ekonomi och ledarskap möjliggör
+        bred analysförmåga och praktiskt orienterad rådgivning.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="quote-section" id="kontakt">
+  <div class="container">
+    <div class="section-kicker">Kontakt</div>
+
+    <h2>Låt oss skapa värde tillsammans.</h2>
+
+    <p>
+      Jag arbetar i gränslandet mellan analys, strategi,
+      ekonomi och avancerad problemlösning — med fokus på att skapa
+      tydlighet och hållbara resultat i komplexa miljöer.
+    </p>
+
+    <a href="mailto:orjan.carlborg@email.com" class="button">
+      Kontakta mig
+    </a>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="container footer-grid">
+    <div>Örjan Carlborg</div>
+    <div>Uppsala, Sverige</div>
+    <div>Strategic Analytics & Performance</div>
+  </div>
+</footer>
+
+<!--
+FÖRSLAG PÅ UNDERSIDOR
+
+research.html
+- Publikationer
+- Forskningsprojekt
+- AI/data science
+- Metodutveckling
+- Internationella samarbeten
+
+ economics.html
+- Redovisning & ekonomistyrning
+- Beskattning
+- Verksamhetsanalys
+- Praktisk ekonomikompetens
+
+leadership.html
+- Mentorskap
+- Ledarskap
+- Prestationsutveckling
+- Erfarenhet från forskning och idrott
+
+advisory.html
+- Strategisk rådgivning
+- Analys & beslutsstöd
+- Organisationsutveckling
+- AI & komplex problemlösning
+-->
+
+
+</body>
+</html>
