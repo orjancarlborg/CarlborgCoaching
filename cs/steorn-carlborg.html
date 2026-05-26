@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+
+<script>
+(function(){
+  if(sessionStorage.getItem('sc_auth')!=='granted'){
+    window.location.replace('login.html?next='+encodeURIComponent(window.location.pathname.split('/').pop()));
+  }
+})();
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Steorn & Carlborg — Evidensbaserad organisationsutveckling</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --stone:  #1c1917;
+  --warm:   #f5f0e8;
+  --cream:  #faf7f2;
+  --sage:   #3d5a4f;
+  --sage-lt:#e8f0ed;
+  --rust:   #9b4a2a;
+  --rust-lt:#f5e8e2;
+  --gold:   #b8914a;
+  --gold-lt:#f5edd8;
+  --mid:    #5a5550;
+  --border: #e2dbd0;
+  --serif:  'Playfair Display', Georgia, serif;
+  --sans:   'DM Sans', sans-serif;
+}
+html{scroll-behavior:smooth}
+body{
+  background:var(--cream);
+  color:var(--stone);
+  font-family:var(--sans);
+  font-weight:300;
+  line-height:1.6;
+  overflow-x:hidden;
+}
+
+/* ── NAV ─────────────────────────────────────────────────────────────── */
+nav{
+  position:sticky;top:0;z-index:100;
+  background:rgba(250,247,242,.96);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+  padding:1rem 4rem;
+  display:flex;justify-content:space-between;align-items:center;
+}
+.wordmark{
+  font-family:var(--serif);font-size:1.1rem;
+  letter-spacing:.04em;color:var(--stone);
+  text-decoration:none;
+}
+.wordmark em{font-style:normal;color:var(--sage)}
+.nav-links{display:flex;gap:2.5rem;align-items:center}
+.nav-links a{
+  font-size:.75rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--mid);text-decoration:none;transition:color .2s;
+}
+.nav-links a:hover{color:var(--sage)}
+.nav-cta{
+  padding:.5rem 1.3rem;
+  background:var(--stone);color:var(--cream);
+  font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;
+  text-decoration:none;transition:background .2s;
+}
+.nav-cta:hover{background:var(--sage)}
+
+/* ── HERO ────────────────────────────────────────────────────────────── */
+.hero{
+  min-height:92vh;
+  display:grid;grid-template-columns:1fr 1fr;
+  position:relative;overflow:hidden;
+}
+/* Left panel — concept */
+.hero-left{
+  padding:6rem 4rem 4rem;
+  display:flex;flex-direction:column;justify-content:center;
+  background:var(--stone);
+  position:relative;overflow:hidden;
+}
+.hero-left::after{
+  content:'';position:absolute;
+  bottom:-40%;right:-20%;
+  width:70%;height:70%;border-radius:50%;
+  background:radial-gradient(circle,rgba(61,90,79,.35) 0%,transparent 65%);
+  pointer-events:none;
+}
+.hero-eyebrow{
+  font-size:.68rem;letter-spacing:.28em;text-transform:uppercase;
+  color:var(--gold);opacity:.8;margin-bottom:1.8rem;
+}
+.hero-h1{
+  font-family:var(--serif);
+  font-size:clamp(2.6rem,4vw,4rem);
+  font-weight:400;line-height:1.1;
+  color:var(--warm);margin-bottom:1.5rem;
+}
+.hero-h1 em{font-style:italic;color:var(--gold)}
+.hero-desc{
+  font-size:.95rem;color:rgba(245,240,232,.6);
+  max-width:44ch;line-height:1.85;margin-bottom:3rem;
+}
+.hero-ctas{display:flex;gap:1rem;flex-wrap:wrap}
+.btn-light{
+  padding:.7rem 1.8rem;background:var(--warm);color:var(--stone);
+  font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;
+  text-decoration:none;font-weight:500;transition:all .2s;
+}
+.btn-light:hover{background:var(--gold);color:var(--stone)}
+.btn-outline-light{
+  padding:.7rem 1.8rem;border:1px solid rgba(245,240,232,.3);
+  color:rgba(245,240,232,.7);
+  font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;
+  text-decoration:none;transition:all .2s;
+}
+.btn-outline-light:hover{border-color:var(--gold);color:var(--gold)}
+
+/* Right panel — portrait split */
+.hero-right{
+  display:grid;grid-template-rows:auto auto;
+  gap:2px;background:var(--border);
+  align-content:start;
+  overflow-y:auto;
+}
+.portrait-card{
+  background:var(--cream);
+  padding:0;
+  display:flex;flex-direction:column;
+  position:relative;
+  transition:background .3s;
+}
+.portrait-card:hover{background:var(--warm)}
+.portrait-card.erika{background:var(--sage-lt)}
+.portrait-card.erika:hover{background:#ddeae6}
+.portrait-bg-letter{
+  position:absolute;right:-1rem;top:-2rem;
+  font-family:var(--serif);font-size:14rem;font-weight:500;
+  line-height:1;opacity:.06;color:var(--stone);
+  pointer-events:none;user-select:none;
+}
+.portrait-card.erika .portrait-bg-letter{color:var(--sage)}
+.portrait-name{
+  font-family:var(--serif);font-size:1.8rem;font-weight:400;
+  color:var(--stone);margin-bottom:.25rem;
+}
+.portrait-role{
+  font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--mid);margin-bottom:1rem;
+}
+.portrait-card.erika .portrait-role{color:var(--sage)}
+.portrait-tags{display:flex;flex-wrap:wrap;gap:.4rem}
+.tag{
+  font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;
+  padding:.2rem .6rem;border-radius:1px;
+}
+.tag-stone{background:rgba(28,25,23,.08);color:var(--stone)}
+.tag-sage{background:rgba(61,90,79,.12);color:var(--sage)}
+.portrait-link{
+  position:absolute;top:1.5rem;right:1.5rem;
+  font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--mid);text-decoration:none;opacity:.5;transition:opacity .2s;
+}
+.portrait-card:hover .portrait-link{opacity:1;color:var(--sage)}
+
+/* ── THESIS SECTION ──────────────────────────────────────────────────── */
+.thesis{
+  padding:6rem 4rem;
+  display:grid;grid-template-columns:1fr 2fr;gap:6rem;
+  align-items:start;
+  border-bottom:1px solid var(--border);
+}
+.thesis-label{
+  font-size:.68rem;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--gold);padding-top:.3rem;
+}
+.thesis-content{}
+.thesis-q{
+  font-family:var(--serif);font-size:clamp(1.5rem,2.2vw,2rem);
+  font-weight:400;line-height:1.45;color:var(--stone);
+  margin-bottom:1.5rem;
+}
+.thesis-q em{font-style:italic;color:var(--sage)}
+.thesis-body{
+  font-size:.95rem;color:var(--mid);max-width:62ch;line-height:1.85;
+  margin-bottom:2rem;
+}
+.thesis-body strong{color:var(--stone);font-weight:500}
+.thesis-divide{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:1px;background:var(--border);margin-top:2.5rem;
+}
+.divide-card{
+  background:var(--cream);padding:2rem;
+  transition:background .25s;
+}
+.divide-card:first-child{border-right:2px solid var(--gold)}
+.divide-card:hover{background:var(--warm)}
+.divide-who{
+  font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:.6rem;
+}
+.divide-strength{
+  font-family:var(--serif);font-size:1.1rem;font-weight:400;
+  color:var(--stone);margin-bottom:.6rem;line-height:1.3;
+}
+.divide-body{font-size:.82rem;color:var(--mid);line-height:1.65}
+
+/* ── OFFER GRID ──────────────────────────────────────────────────────── */
+.offers{padding:6rem 4rem;background:var(--warm);border-bottom:1px solid var(--border)}
+.offers-header{margin-bottom:3.5rem}
+.s-label{font-size:.68rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:.5rem}
+.s-title{font-family:var(--serif);font-size:clamp(1.8rem,2.4vw,2.4rem);font-weight:400;line-height:1.2}
+.s-title em{font-style:italic;color:var(--sage)}
+
+.offers-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:1px;background:var(--border);
+}
+.offer-card{
+  background:var(--cream);padding:2.5rem;
+  position:relative;overflow:hidden;
+  transition:background .25s;
+}
+.offer-card:hover{background:white}
+.offer-num{
+  font-family:var(--serif);font-size:4rem;font-weight:400;
+  color:rgba(28,25,23,.06);line-height:1;
+  position:absolute;top:1.2rem;right:1.8rem;
+}
+.offer-icon{
+  width:36px;height:36px;
+  border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:.9rem;color:var(--sage);
+  margin-bottom:1.5rem;
+}
+.offer-title{
+  font-family:var(--serif);font-size:1.2rem;font-weight:400;
+  color:var(--stone);margin-bottom:.7rem;line-height:1.25;
+}
+.offer-body{font-size:.83rem;color:var(--mid);line-height:1.7;margin-bottom:1.5rem}
+.offer-who{
+  font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;
+  padding:.2rem .55rem;border-radius:1px;display:inline-block;
+}
+.ow-orjan{background:var(--gold-lt);color:#7a5e2a;border:1px solid rgba(184,145,74,.3)}
+.ow-erika{background:var(--sage-lt);color:var(--sage);border:1px solid rgba(61,90,79,.25)}
+.ow-joint{background:var(--stone);color:var(--warm);font-weight:500}
+
+/* ── EVIDENCE BAR ────────────────────────────────────────────────────── */
+.evidence{
+  display:grid;grid-template-columns:repeat(6,1fr);
+  border-bottom:1px solid var(--border);
+}
+.ev-stat{
+  padding:2.5rem 1.5rem;text-align:center;
+  border-right:1px solid var(--border);
+  transition:background .2s;
+}
+.ev-stat:last-child{border-right:none}
+.ev-stat:hover{background:var(--warm)}
+.ev-num{
+  font-family:var(--serif);font-size:clamp(1.6rem,2.5vw,2.4rem);
+  font-weight:400;line-height:1;display:block;margin-bottom:.35rem;
+}
+.ev-num.orjan{color:var(--gold)}
+.ev-num.erika{color:var(--sage)}
+.ev-lbl{
+  font-size:.6rem;letter-spacing:.16em;text-transform:uppercase;
+  color:rgba(90,85,80,.5);display:block;
+}
+
+/* ── CASES ──────────────────────────────────────────────────────────── */
+.cases{padding:6rem 4rem;border-bottom:1px solid var(--border)}
+.cases-list{
+  display:flex;flex-direction:column;
+  gap:1px;background:var(--border);margin-top:3rem;
+}
+.case-item{
+  background:var(--cream);
+  display:grid;grid-template-columns:2fr 1fr auto;
+  gap:3rem;align-items:center;
+  padding:2rem 2.5rem;
+  transition:background .2s;
+  cursor:default;
+}
+.case-item:hover{background:var(--warm)}
+.case-title{
+  font-family:var(--serif);font-size:1.05rem;font-weight:400;
+  color:var(--stone);margin-bottom:.25rem;
+}
+.case-sub{font-size:.8rem;color:var(--mid)}
+.case-skills{display:flex;gap:.4rem;flex-wrap:wrap}
+.case-skill{
+  font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;
+  padding:.15rem .5rem;background:var(--warm);
+  color:var(--mid);border:1px solid var(--border);
+}
+.case-who{
+  text-align:right;font-size:.7rem;letter-spacing:.12em;
+  text-transform:uppercase;
+}
+.case-who.joint{color:var(--stone);font-weight:500}
+.case-who.orjan{color:var(--gold)}
+.case-who.erika{color:var(--sage)}
+
+/* ── TEAM ────────────────────────────────────────────────────────────── */
+.team{
+  padding:6rem 4rem;background:var(--warm);
+  border-bottom:1px solid var(--border);
+}
+.team-grid{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:2px;background:var(--border);margin-top:3rem;
+}
+.team-card{
+  background:var(--cream);padding:3.5rem 3rem;
+  position:relative;
+}
+.team-card.erika-card{background:var(--sage-lt)}
+.tc-header{
+  display:flex;justify-content:space-between;align-items:flex-start;
+  margin-bottom:1.5rem;
+}
+.tc-name{
+  font-family:var(--serif);font-size:1.8rem;font-weight:400;color:var(--stone);
+}
+.tc-title{
+  font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--mid);margin-top:.3rem;
+}
+.erika-card .tc-title{color:var(--sage)}
+.tc-tagline{
+  font-family:var(--serif);font-style:italic;font-size:1.1rem;
+  color:var(--mid);max-width:38ch;line-height:1.5;
+  margin-bottom:1.5rem;
+}
+.tc-bullets{
+  display:flex;flex-direction:column;gap:.6rem;
+  margin-bottom:2rem;
+}
+.tc-bullet{
+  display:flex;align-items:flex-start;gap:.7rem;
+  font-size:.85rem;color:var(--mid);line-height:1.5;
+}
+.tc-dot{
+  width:4px;height:4px;border-radius:50%;
+  background:var(--gold);flex-shrink:0;margin-top:.5rem;
+}
+.erika-card .tc-dot{background:var(--sage)}
+.tc-kpis{
+  display:flex;gap:2rem;
+  padding-top:1.5rem;border-top:1px solid var(--border);
+  flex-wrap:wrap;
+}
+.tc-kpi span{display:block}
+.tc-kpi-val{
+  font-family:var(--serif);font-size:1.6rem;font-weight:400;
+  line-height:1;color:var(--gold);
+}
+.erika-card .tc-kpi-val{color:var(--sage)}
+.tc-kpi-lbl{font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(90,85,80,.5);margin-top:.2rem}
+.tc-cta{
+  position:absolute;bottom:2rem;right:2.5rem;
+  font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;
+  color:rgba(90,85,80,.4);text-decoration:none;transition:color .2s;
+}
+.tc-cta:hover{color:var(--sage)}
+
+/* ── CONTACT ─────────────────────────────────────────────────────────── */
+.contact{
+  padding:6rem 4rem;
+  display:grid;grid-template-columns:3fr 2fr;gap:6rem;
+  align-items:center;
+}
+.contact h2{
+  font-family:var(--serif);font-size:clamp(2rem,3vw,2.8rem);
+  font-weight:400;line-height:1.2;margin-bottom:1rem;
+}
+.contact h2 em{font-style:italic;color:var(--sage)}
+.contact p{font-size:.95rem;color:var(--mid);max-width:46ch;line-height:1.8}
+.contact-cards{display:flex;flex-direction:column;gap:1px;background:var(--border)}
+.contact-person{
+  background:var(--cream);padding:1.8rem 2rem;
+  transition:background .2s;
+}
+.contact-person:hover{background:var(--warm)}
+.contact-person-name{
+  font-family:var(--serif);font-size:1rem;color:var(--stone);margin-bottom:.6rem;
+}
+.contact-row{
+  display:flex;align-items:center;gap:.7rem;
+  font-size:.8rem;color:var(--mid);margin-bottom:.3rem;
+}
+.contact-row a{color:var(--mid);text-decoration:none}
+.contact-row a:hover{color:var(--sage)}
+.contact-icon{
+  width:20px;height:20px;background:var(--warm);
+  display:flex;align-items:center;justify-content:center;
+  font-size:.65rem;color:var(--sage);flex-shrink:0;
+  border:1px solid var(--border);
+}
+
+/* ── FOOTER ──────────────────────────────────────────────────────────── */
+footer{
+  padding:2rem 4rem;background:var(--stone);
+  display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;
+}
+footer p{font-size:.72rem;color:rgba(245,240,232,.35);letter-spacing:.08em}
+.footer-links{display:flex;gap:2rem}
+.footer-links a{
+  font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;
+  color:rgba(245,240,232,.4);text-decoration:none;transition:color .2s;
+}
+.footer-links a:hover{color:var(--gold)}
+
+/* ── REVEAL ANIMATIONS ───────────────────────────────────────────────── */
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease}
+.reveal.vis{opacity:1;transform:none}
+.reveal-delay-1{transition-delay:.1s}
+.reveal-delay-2{transition-delay:.2s}
+.reveal-delay-3{transition-delay:.3s}
+
+/* ── RESPONSIVE ──────────────────────────────────────────────────────── */
+@media(max-width:1024px){
+  .hero{grid-template-columns:1fr}
+  .hero-right{grid-template-rows:auto auto;grid-template-columns:1fr 1fr}
+  .thesis{grid-template-columns:1fr;gap:2rem}
+  .offers-grid{grid-template-columns:1fr 1fr}
+  .evidence{grid-template-columns:repeat(3,1fr)}
+  .evidence .ev-stat:nth-child(3){border-right:none}
+  .team-grid{grid-template-columns:1fr}
+  .contact{grid-template-columns:1fr}
+  .case-item{grid-template-columns:1fr;gap:1rem}
+}
+@media(max-width:768px){
+  nav,footer{padding-left:1.5rem;padding-right:1.5rem}
+  .hero-left,.thesis,.offers,.cases,.team,.contact{padding-left:1.5rem;padding-right:1.5rem}
+  .offers-grid{grid-template-columns:1fr}
+  .evidence{grid-template-columns:repeat(2,1fr)}
+  .thesis-divide{grid-template-columns:1fr}
+  .nav-links .nav-hide{display:none}
+}
+
+/* ── PORTRAIT PHOTOS ── */
+.portrait-photo{
+  width:100%;
+  height:auto;
+  display:block;
+  filter:grayscale(15%);
+  transition:filter .4s;
+  flex-shrink:0;
+}
+.portrait-card:hover .portrait-photo{filter:grayscale(0%)}
+
+
+.portrait-info{
+  padding:1.8rem 2rem 2rem;
+  flex:1;
+}
+.portrait-bg-letter{display:none}
+
+/* ── PACKAGES ── */
+.packages{padding:6rem 4rem;border-bottom:1px solid var(--border)}
+.packages-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:2px;background:var(--border);margin-top:3rem}
+.pkg-card{
+  background:var(--cream);padding:3rem;
+  display:flex;flex-direction:column;gap:0;
+  transition:background .2s;
+}
+.pkg-card:hover{background:white}
+.pkg-num{
+  font-family:var(--serif);font-size:4rem;font-weight:400;
+  color:rgba(28,25,23,.07);line-height:1;
+  margin-bottom:.5rem;
+}
+.pkg-title{
+  font-family:var(--serif);font-size:1.4rem;font-weight:400;
+  color:var(--stone);line-height:1.2;margin-bottom:.6rem;
+}
+.pkg-subtitle{
+  font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:1.2rem;
+}
+.pkg-ingress{
+  font-size:.9rem;color:var(--mid);line-height:1.75;
+  margin-bottom:2rem;
+  padding-bottom:2rem;
+  border-bottom:1px solid var(--border);
+}
+
+/* Case blocks */
+.pkg-cases{display:flex;flex-direction:column;gap:1.2rem;margin-top:0}
+.pkg-case{padding:1.4rem 1.6rem;border-left:2px solid var(--border)}
+.pkg-case.real{border-left-color:var(--sage)}
+.pkg-case.illustrative{border-left-color:var(--border)}
+.pkg-case-label{
+  font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;
+  margin-bottom:.5rem;display:block;
+}
+.pkg-case.real .pkg-case-label{color:var(--sage)}
+.pkg-case.illustrative .pkg-case-label{color:rgba(90,85,80,.4)}
+.pkg-case-text{font-size:.82rem;color:var(--mid);line-height:1.7}
+
+@media(max-width:900px){
+  .packages{padding-left:1.5rem;padding-right:1.5rem}
+  .packages-grid{grid-template-columns:1fr}
+}
+
+/* ── LOGOUT LINK ── */
+.logout-link{
+  font-size:.65rem;letter-spacing:.14em;text-transform:uppercase;
+  color:rgba(240,245,242,.3);text-decoration:none;
+  transition:color .2s;cursor:pointer;
+}
+.logout-link:hover{color:#e07070}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="wordmark">Steorn <em>&</em> Carlborg</a>
+  <div class="nav-links">
+    <a href="#erbjudande" class="nav-hide">Erbjudande</a><a href="#paket" class="nav-hide">Uppdrag</a>
+    <a href="#team" class="nav-hide">Teamet</a>
+    <a href="#kontakt">Kontakt</a>
+    <a onclick="logout()" class="logout-link">Logga ut</a>
+    <a href="#kontakt" class="nav-cta">Boka samtal</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-left">
+    <p class="hero-eyebrow">Strategisk rådgivning · Stockholm & Uppsala</p>
+    <h1 class="hero-h1">
+      Omdöme under<br>
+      <em>komplexitet.</em>
+    </h1>
+    <p class="hero-desc">
+      Inte kompetens i allmänhet — utan förmågan att förstå
+      vad problemet faktiskt är, integrera analys med
+      mänskliga realiteter och driva förändring som håller.
+    </p>
+    <div class="hero-ctas">
+      <a href="#team" class="btn-light">Lär känna oss</a>
+      <a href="#kontakt" class="btn-outline-light">Ta kontakt</a>
+    </div>
+  </div>
+
+  <div class="hero-right">
+    <div class="portrait-card">
+      <img src="orjan.jpg" alt="Örjan Carlborg" class="portrait-photo">
+      <div class="portrait-info">
+      <a href="index.html" class="portrait-link">Fullständig profil →</a>
+      <div class="portrait-name">Örjan Carlborg</div>
+      <div class="portrait-role">Complex Systems & Analytics</div>
+      <div class="portrait-tags">
+        <span class="tag tag-stone">Beräkningsgenomik</span>
+        <span class="tag tag-stone">Kvantitativ analys</span>
+        <span class="tag tag-stone">h-index 44</span>
+        <span class="tag tag-stone">Elitcoach friidrott</span>
+      </div>
+      </div>
+    </div>
+    <div class="portrait-card erika">
+      <img src="erika.jpg" alt="Erika Steorn" class="portrait-photo">
+      <div class="portrait-info">
+      <a href="erika.html" class="portrait-link">Fullständig profil →</a>
+      <div class="portrait-name">Erika Steorn</div>
+      <div class="portrait-role">Ledarskap & Organisationsutveckling</div>
+      <div class="portrait-tags">
+        <span class="tag tag-sage">Interim VD/GS-nivå</span>
+        <span class="tag tag-sage">AI & digitalisering</span>
+        <span class="tag tag-sage">600+ medarbetare</span>
+        <span class="tag tag-sage">Förändringsledning</span>
+      </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EVIDENCE BAR -->
+<div class="evidence reveal">
+  <div class="ev-stat">
+    <span class="ev-num orjan" data-target="150">0</span>
+    <span class="ev-lbl">Vetenskapliga publikationer</span>
+  </div>
+  <div class="ev-stat">
+    <span class="ev-num orjan" data-str="h44">—</span>
+    <span class="ev-lbl">h-index · 10 888 citeringar</span>
+  </div>
+  <div class="ev-stat">
+    <span class="ev-num orjan" data-str="95 M">—</span>
+    <span class="ev-lbl">SEK extern forskningsfinansiering</span>
+  </div>
+  <div class="ev-stat">
+    <span class="ev-num erika" data-str="VD/GS">—</span>
+    <span class="ev-lbl">Ledarskapsnivå, offentlig sektor</span>
+  </div>
+  <div class="ev-stat">
+    <span class="ev-num erika" data-target="600">0</span>
+    <span class="ev-lbl">+ medarbetare under ledarskap</span>
+  </div>
+  <div class="ev-stat">
+    <span class="ev-num erika" data-str="20+">—</span>
+    <span class="ev-lbl">År erfarenhet av ledarutveckling</span>
+  </div>
+</div>
+
+<!-- THESIS -->
+<section class="thesis">
+  <div class="thesis-label reveal">Vår utgångspunkt</div>
+  <div class="thesis-content reveal reveal-delay-1">
+    <p class="thesis-q">
+      Det svåra är sällan analysen.<br>
+      Det svåra är att <em>förstå vad problemet egentligen är.</em>
+    </p>
+    <p class="thesis-body">
+      De flesta organisationer har tillgång till data, processer och kompetenta
+      människor. Ändå fastnar beslut, implementeringar misslyckas och
+      förändringar återskapar de problem de var tänkta att lösa.
+    </p>
+    <p class="thesis-body">
+      Det beror nästan aldrig på brist på information.
+      Det beror på att det analytiska och det mänskliga behandlas separat —
+      av olika konsulter, i olika faser, utan integration.
+    </p>
+    <p class="thesis-body">
+      Dessa perspektiv finns sällan samlade i samma uppdrag.
+    </p>
+    <div class="thesis-divide">
+      <div class="divide-card">
+        <div class="divide-who">Örjan Carlborg</div>
+        <div class="divide-strength">Kvantitativ analys &<br>systemtänkande</div>
+        <p class="divide-body">Professor i beräkningsgenomik. 24 år av att modellera hur komplexa system producerar oväntade utfall — och vad data faktiskt säger.</p>
+      </div>
+      <div class="divide-card">
+        <div class="divide-who" style="color:var(--sage)">Erika Steorn</div>
+        <div class="divide-strength">Organisatoriskt ledarskap &<br>förändringskraft</div>
+        <p class="divide-body">Senior ledare på VD/GS-nivå. 20+ år av att bygga förtroende, leda organisationer i omställning och skapa kulturer där människor presterar.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- OFFERS -->
+<section class="offers" id="erbjudande">
+  <div class="offers-header reveal">
+    <p class="s-label">Vad vi faktiskt säljer</p>
+    <h2 class="s-title">Under ytan på varje <em>uppdrag</em></h2>
+  </div>
+  <div class="offers-grid" style="grid-template-columns:repeat(2,1fr)">
+
+    <div class="offer-card reveal">
+      <div class="offer-num">01</div>
+      <div class="offer-icon">◎</div>
+      <div class="offer-title">Omdöme under<br>komplexitet</div>
+      <p class="offer-body">
+        Inte svar på enkla frågor — utan förmågan att hålla huvudet klart
+        när bilden är ofullständig, intressena motstridiga och
+        konsekvenserna svåra att förutsäga. Det går inte att utbilda sig till
+        det. Det byggs över tid, i verkliga situationer.
+      </p>
+      <span class="offer-who ow-joint">Gemensamt</span>
+    </div>
+
+    <div class="offer-card reveal reveal-delay-1">
+      <div class="offer-num">02</div>
+      <div class="offer-icon">⬡</div>
+      <div class="offer-title">Förmågan att förstå<br>vad problemet egentligen är</div>
+      <p class="offer-body">
+        Det presenterade problemet är sällan det verkliga. En organisation
+        som tror sig ha ett kommunikationsproblem har ofta ett
+        beslutsproblem. En som tror sig ha ett dataproblem har ofta ett
+        tolkningsproblem. Det krävs analytisk och organisatorisk erfarenhet
+        för att skilja dem åt.
+      </p>
+      <span class="offer-who ow-joint">Gemensamt</span>
+    </div>
+
+    <div class="offer-card reveal">
+      <div class="offer-num">03</div>
+      <div class="offer-icon">◈</div>
+      <div class="offer-title">Integrering av analys<br>och människor</div>
+      <p class="offer-body">
+        Analysen som stannar i presentationen och förändringen som
+        inte tar hänsyn till vad data visar — båda misslyckas av samma
+        skäl. De behandlar det analytiska och det mänskliga som separata
+        faser. Vi arbetar med dem samtidigt.
+      </p>
+      <span class="offer-who ow-joint">Gemensamt</span>
+    </div>
+
+    <div class="offer-card reveal reveal-delay-1">
+      <div class="offer-num">04</div>
+      <div class="offer-icon">◇</div>
+      <div class="offer-title">Förändring som<br>faktiskt fungerar</div>
+      <p class="offer-body">
+        Inte förändringsprogram, utan förändring. Skillnaden är om
+        organisationen faktiskt beter sig annorlunda när uppdraget är
+        avslutat. Det kräver att rätt saker mäts, att ledare äger
+        förändringen och att kulturen tillåter den.
+      </p>
+      <span class="offer-who ow-joint">Gemensamt</span>
+    </div>
+
+  </div>
+
+  <div style="padding:2.5rem 0 0;border-top:1px solid var(--border);margin-top:1px" class="reveal">
+    <p style="font-size:.82rem;color:var(--mid);max-width:72ch;line-height:1.85">
+      Konkret innebär det uppdrag inom strategisk analys, interim ledarskap,
+      organisationsutveckling, AI-implementering, ledarutveckling och
+      prestationscoaching — gemensamt eller separat beroende på vad
+      frågan kräver.
+    </p>
+  </div>
+</section>
+
+
+<!-- PACKAGES -->
+<section class="packages" id="paket">
+  <div class="reveal">
+    <p class="s-label">Uppdrag i fyra former</p>
+    <h2 class="s-title">Vad vi <em>arbetar med</em></h2>
+  </div>
+  <div class="packages-grid">
+
+    <!-- 1 -->
+    <div class="pkg-card reveal">
+      <div class="pkg-num">01</div>
+      <div class="pkg-title">Strategi möter verklighet</div>
+      <div class="pkg-subtitle">När strategin finns — men organisationen inte rör sig mot den</div>
+      <p class="pkg-ingress">
+        De flesta organisationer har en strategi. Färre har en trovärdig väg från
+        dagens verklighet till dit strategin pekar. Det här uppdraget kartlägger
+        gapet — mellan uttalade prioriteringar och faktisk resursfördelning,
+        mellan ledningens intention och organisationens beteende — och bygger
+        en förankrad färdplan med mätbara steg.
+      </p>
+      <div class="pkg-cases">
+        <div class="pkg-case real">
+          <span class="pkg-case-label">En situation vi arbetat med</span>
+          <p class="pkg-case-text">En nationell ideell organisation inom psykisk hälsa hämtade in en interim GS under en period av organisatorisk osäkerhet. Strategin fanns på papper — riktningen var i grova drag överenskommen — men det saknades en operativ plattform som kopplade det dagliga arbetet till de strategiska prioriteringarna. Resurser fördelades reaktivt, teamet drog åt olika håll och organisationen saknade den inre struktur som behövs för att hålla en kurs över tid. Uppdraget resulterade i en ny strategisk plattform, tydligare styrning och ett ägarskap internt som höll även efter ledarskapsskiftet.</p>
+        </div>
+        <div class="pkg-case illustrative">
+          <span class="pkg-case-label">En situation av det här slaget kan se ut så här</span>
+          <p class="pkg-case-text">En regional vårdgivare har under två år tagit fram en strategi för integrerade patientflöden. Dokumentet är välansett. Problemet är att resursbeslut — bemanning, IT-investeringar, avdelningsprioriteringar — fortsätter följa den gamla logiken. Mellanchefer implementerar strategin till namnet, inte för att de motsätter sig den, utan för att ingen har översatt de strategiska målen till operativa beslut de faktiskt kan fatta. Gapet mellan intention och handling växer tyst tills en resultatskris tvingar fram samtalet.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2 -->
+    <div class="pkg-card reveal reveal-delay-1">
+      <div class="pkg-num">02</div>
+      <div class="pkg-title">Klarhet innan riktning</div>
+      <div class="pkg-subtitle">När ledningen inte kan formulera vart de är på väg — eller inte är överens</div>
+      <p class="pkg-ingress">
+        Innan en färdplan går det att bygga en strategi som organisationen
+        faktiskt kan använda. Många har visionsformuleringar som låter rätt
+        men saknar bärkraft — de särskiljer inte organisationen från någon annan,
+        löser inte verkliga oenigheter om riktningen och översätts inte till
+        dagliga beslut. Det här uppdraget skapar den klarheten genom strukturerad
+        analys av omvärlden kombinerat med en process som lyfter fram och
+        löser de oenigheter ledningen undvikit.
+      </p>
+      <div class="pkg-cases">
+        <div class="pkg-case real">
+          <span class="pkg-case-label">En situation vi arbetat med</span>
+          <p class="pkg-case-text">En kommunal utbildningsförvaltning skulle reorganisera sina funktioner för specialpedagogiskt stöd och utredning. Det formella mandatet för förändring var tydligt. Vad som var mindre tydligt var om de som skulle leda den nya strukturen var överens om vad den egentligen var till för. Utan att lösa det skulle vilken ny struktur som helst byggas på en outtalad oenighet. Uppdraget arbetade sig igenom den grundläggande frågan om syfte innan organiseringen designades, tog fram en kommunikationsplan som var ärlig om avvägningarna och byggde tillräckligt delat ägarskap för att implementeringen höll.</p>
+        </div>
+        <div class="pkg-case illustrative">
+          <span class="pkg-case-label">En situation av det här slaget kan se ut så här</span>
+          <p class="pkg-case-text">En branschorganisation med tre distinkta medlemsgrupper har en styrelse som är överens om orden i sin mission — men oenig, utan att riktigt säga det, om vilken grupp organisationen i grunden ska tjäna. Strategiprocesser producerar dokument som täcker över oenigheten. Det verkliga beslutet skjuts upp gång efter gång. Organisationen fattar resursbeslut som skickar motsägande signaler till varje grupp, och ingen kan förklara för en ny medarbetare vad organisationen egentligen försöker åstadkomma.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3 -->
+    <div class="pkg-card reveal">
+      <div class="pkg-num">03</div>
+      <div class="pkg-title">Organisationsdiagnos</div>
+      <div class="pkg-subtitle">När något tydligt är fel — men ingen kan sätta ord på vad</div>
+      <p class="pkg-ingress">
+        Prestandaproblem i organisationer orsakas nästan aldrig av det ledningen
+        identifierar först. Återkommande konflikter, kompetensflykt, strategisk
+        handlingsförlamning och ihållande underprestation har vanligen strukturella
+        eller kulturella orsaker som är synliga — om man vet hur man ska titta.
+        Det här uppdraget kombinerar kvantitativ analys av organisationsmönster
+        med direkt ledarskaps- och kulturbedömning för att ge en tydlig,
+        evidensbaserad bild av vad som faktiskt driver problemet.
+      </p>
+      <div class="pkg-cases">
+        <div class="pkg-case real">
+          <span class="pkg-case-label">En situation vi arbetat med</span>
+          <p class="pkg-case-text">En offentlig verksamhet med ansvar för juridik och utredning hade upplevt ihållande försämring i medarbetarmätningar, hög personalomsättning och vikande teamkohesion. Ledningen pekade på arbetsbelastning och lönenivåer. Verkligheten, när den undersöktes systematiskt, var mer strukturell: beslutsmandaten var oklara, kulturen belönade individuell prestation framför samarbete och förtroendet mellan ledning och medarbetare hade eroderat utan att någon formellt erkänt det. Uppdraget kombinerade organisationsanalys med ett strukturerat förändringsarbete. Mätbara förbättringar i psykologisk trygghet dokumenterades inom några månader. Uppdraget erhöll högsta möjliga kundbetyg.</p>
+        </div>
+        <div class="pkg-case illustrative">
+          <span class="pkg-case-label">En situation av det här slaget kan se ut så här</span>
+          <p class="pkg-case-text">Ett forskningsintensivt bolag med 90 anställda har sett sin bästa tekniska personal sluta i accelererande takt under tre år. Exitintervjuer nämner bättre erbjudanden på annat håll. Lönejämförelser tyder på att ersättningen är konkurrenskraftig. Ingen har undersökt vad organisationen faktiskt belönar i praktiken — vems karriärer avancerar, hur beslut fattas, vad som tolereras på seniornivå — jämfört med vad den säger sig värdera. Den verkliga orsaken till avgångarna är läsbar i mönstren, men bara om någon tittar på data och kultur samtidigt.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4 -->
+    <div class="pkg-card reveal reveal-delay-1">
+      <div class="pkg-num">04</div>
+      <div class="pkg-title">Av med ekorrhjulet</div>
+      <div class="pkg-subtitle">När organisationen är upptagen — men inte effektiv</div>
+      <p class="pkg-ingress">
+        En del organisationer underprestaterar inte på grund av en dålig strategi
+        eller ett kulturproblem — de underprestaterar för att det operativa trycket
+        helt har konsumerat den kapacitet som borde finnas för strategiskt arbete.
+        Varje vecka är full. Inget viktigt rör sig. Det är både ett analytiskt
+        problem — hur används resurser egentligen, och vad kostar den fördelningen?
+        — och ett ledarskapsproblem — vad skulle krävas för att det ska se
+        annorlunda ut, och vem behöver förändra sitt beteende?
+      </p>
+      <div class="pkg-cases">
+        <div class="pkg-case real">
+          <span class="pkg-case-label">En situation vi arbetat med</span>
+          <p class="pkg-case-text">Inom flera offentliga och idéburna organisationer framträdde samma grundläggande mönster: det operativa trycket hade blivit så totalt att ingen kapacitet fanns för reflektion, kursjustering eller strategiskt arbete. I ett uppdrag som berörde en större offentlig organisation med flera hundra medarbetare och en betydande budget visade analysarbetet att merparten av den strategiska ledningens tid konsumerades av operativ samordning som inte borde ha krävt deras inblandning. Att bygga ett annat sätt att fungera krävde både strukturell redesign och ett medvetet skifte i ledarskapsbeteende — ingetdera räckte ensamt.</p>
+        </div>
+        <div class="pkg-case illustrative">
+          <span class="pkg-case-label">En situation av det här slaget kan se ut så här</span>
+          <p class="pkg-case-text">Ett medelstort tillverkande bolag har under arton månader försökt implementera ett program för kontinuerlig förbättring. Programmet har en sponsor, en metodik och genuint stöd från VD. Det har gett nästan inga resultat. Orsaken är inte motstånd — de som tilldelats programmet tror på det. Orsaken är att samma operativa bränder varje vecka rycker iväg samma personer från förbättringsarbetet innan det hinner ta fäste. Ingen har gjort analysen av var den strategiska ledningens tid faktiskt tar vägen, vad det kostar i strategiska termer, eller vad som konkret skulle behöva förändras för att cykeln ska brytas.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- TEAM -->
+<section class="team" id="team">
+  <div class="reveal">
+    <p class="s-label">Teamet</p>
+    <h2 class="s-title">Örjan Carlborg &<br><em>Erika Steorn</em></h2>
+  </div>
+  <div class="team-grid">
+
+    <div class="team-card reveal reveal-delay-1">
+      <div class="tc-header">
+        <div>
+          <div class="tc-name">Örjan Carlborg</div>
+          <div class="tc-title">Complex Systems & Analytics</div>
+        </div>
+      </div>
+      <p class="tc-tagline">"Komplexa system producerar oväntade utfall — inte trots sina interaktioner, utan på grund av dem."</p>
+      <div class="tc-bullets">
+        <div class="tc-bullet"><div class="tc-dot"></div><span>Professor i beräkningsgenomik, Uppsala Universitet (1998–2022) · h-index 44 · 10 888 citeringar</span></div>
+        <div class="tc-bullet"><div class="tc-dot"></div><span>Pionjär inom epistasis och genetiska interaktioner — forskning i Nature, Nature Genetics, PNAS</span></div>
+        <div class="tc-bullet"><div class="tc-dot"></div><span>~95 MSEK i extern finansiering · EURYI Award · SSF Future Research Leader</span></div>
+        <div class="tc-bullet"><div class="tc-dot"></div><span>Elitcoach friidrott · SM-medaljörer · Årets ledare Upplands FF · ALTIS Mentorship Mastery</span></div>
+        <div class="tc-bullet"><div class="tc-dot"></div><span>YH-examen Redovisningsekonom, samtliga kurser VG</span></div>
+      </div>
+      <div class="tc-kpis">
+        <div class="tc-kpi"><span class="tc-kpi-val">150</span><span class="tc-kpi-lbl">Publikationer</span></div>
+        <div class="tc-kpi"><span class="tc-kpi-val">44</span><span class="tc-kpi-lbl">h-index</span></div>
+        <div class="tc-kpi"><span class="tc-kpi-val">24 år</span><span class="tc-kpi-lbl">Forskarkarriär</span></div>
+      </div>
+      <a href="index.html" class="tc-cta">Fullständig profil →</a>
+    </div>
+
+    <div class="team-card erika-card reveal reveal-delay-2">
+      <div class="tc-header">
+        <div>
+          <div class="tc-name">Erika Steorn</div>
+          <div class="tc-title" style="color:var(--sage)">Ledarskap & Organisationsutveckling</div>
+        </div>
+      </div>
+      <p class="tc-tagline">"De bästa besluten fattas när olika perspektiv möts i en trygg och öppen dialog."</p>
+      <div class="tc-bullets">
+        <div class="tc-bullet"><div class="tc-dot"></div><span>Skolchef Vallentuna (600 medarbetare, ~600 MSEK budget) · GS Tjejzonen · Interimchef Tyresö</span></div>
+        <div class="tc-bullet"><div class="tc-dot"></div><span>Ledare på VD/GS-nivå med dokumenterad förmåga att vända kriser och bygga psykologisk trygghet</span></div>
+        <div class="tc-bullet"><div class="tc-dot"></div><span>AI-implementering för fem civilsamhällesorganisationer · Praktisk, inte teoretisk</span></div>
+        <div class="tc-bullet"><div class="tc-dot"></div><span>Processledarutbildning IC, Cambridge University · MI, Luleå tekniska · Magister Södertörn</span></div>
+        <div class="tc-bullet"><div class="tc-dot"></div><span>Styrelseledamot VOX Stockholm & Techtor AB · Styrelseutbildning deb. 2026</span></div>
+      </div>
+      <div class="tc-kpis">
+        <div class="tc-kpi"><span class="tc-kpi-val">600+</span><span class="tc-kpi-lbl">Medarbetare</span></div>
+        <div class="tc-kpi"><span class="tc-kpi-val">20+</span><span class="tc-kpi-lbl">År ledarskap</span></div>
+        <div class="tc-kpi"><span class="tc-kpi-val">VD/GS</span><span class="tc-kpi-lbl">Nivå</span></div>
+      </div>
+      <a href="erika.html" class="tc-cta">Fullständig profil →</a>
+    </div>
+
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="contact reveal" id="kontakt">
+  <div class="contact-text">
+    <h2>Ta kontakt för ett<br><em>inledande samtal.</em></h2>
+    <p>Vi tar gemensamma uppdrag och separata — beroende på vad frågan kräver.</p>
+  </div>
+  <div class="contact-cards">
+    <div class="contact-person">
+      <div class="contact-person-name">Örjan Carlborg</div>
+      <div class="contact-row"><div class="contact-icon">@</div><a href="mailto:orjan.carlborg@gmail.com">orjan.carlborg@gmail.com</a></div>
+      <div class="contact-row"><div class="contact-icon">✆</div><a href="tel:+46763747081">076-374 70 81</a></div>
+    </div>
+    <div class="contact-person">
+      <div class="contact-person-name">Erika Steorn</div>
+      <div class="contact-row"><div class="contact-icon" style="color:var(--sage)">@</div><a href="mailto:erika@steorn.se">erika@steorn.se</a></div>
+      <div class="contact-row"><div class="contact-icon" style="color:var(--sage)">✆</div><a href="tel:+46705675020">070-567 50 20</a></div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p>© 2025 Steorn & Carlborg · Stockholm & Uppsala</p>
+  <div class="footer-links">
+    <a href="index.html">Örjans profil</a>
+    <a href="erika.html">Erikas profil</a>
+    <a href="publikationer.html">Publikationer</a>
+  </div>
+</footer>
+
+<script>
+// Counter animation
+function animateCounter(el) {
+  const str = el.dataset.str;
+  if (str) { el.textContent = str; return; }
+  const target = parseInt(el.dataset.target);
+  const duration = 1500;
+  const start = performance.now();
+  (function step(now) {
+    const p = Math.min((now - start) / duration, 1);
+    const ease = 1 - Math.pow(1-p, 3);
+    el.textContent = Math.round(ease * target).toLocaleString('sv-SE');
+    if (p < 1) requestAnimationFrame(step);
+  })(performance.now());
+}
+
+// Intersection observer
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (!e.isIntersecting) return;
+    e.target.classList.add('vis');
+    e.target.querySelectorAll('[data-target],[data-str]').forEach(animateCounter);
+    io.unobserve(e.target);
+  });
+}, {threshold: 0.08});
+
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+</script>
+
+<script>
+function logout(){
+  sessionStorage.removeItem('sc_auth');
+  window.location.replace('index.html');
+}
+</script>
+</body>
+</html>
