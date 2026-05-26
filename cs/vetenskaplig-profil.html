@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+
+<script>
+(function(){
+  if(sessionStorage.getItem('sc_auth')!=='granted'){
+    window.location.replace('login.html?next='+encodeURIComponent(window.location.pathname.split('/').pop()));
+  }
+})();
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vetenskaplig Profil – Örjan Carlborg</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --ink:   #0d1117;
+  --paper: #f7f3ed;
+  --gold:  #b8914a;
+  --gold-lt: #d4aa6a;
+  --teal:  #2a6b68;
+  --rust:  #8c3a2b;
+  --muted: #6b6560;
+  --line:  rgba(184,145,74,0.25);
+  --serif: 'Cormorant Garamond', Georgia, serif;
+  --sans:  'Jost', sans-serif;
+}
+
+html{scroll-behavior:smooth}
+body{
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--sans);
+  font-weight:300;
+  line-height:1.6;
+  overflow-x:hidden;
+}
+
+/* ── NAV ── */
+nav{
+  position:fixed; top:0; left:0; right:0; z-index:100;
+  display:flex; justify-content:space-between; align-items:center;
+  padding:1.2rem 4rem;
+  background: rgba(13,17,23,0.92);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--line);
+}
+.nav-logo{
+  font-family:var(--serif);
+  font-size:1.05rem;
+  letter-spacing:0.12em;
+  color:var(--gold);
+  text-decoration:none;
+  text-transform:uppercase;
+}
+nav a{
+  color:var(--paper);
+  text-decoration:none;
+  font-size:0.78rem;
+  letter-spacing:0.15em;
+  text-transform:uppercase;
+  opacity:0.7;
+  transition:opacity .2s;
+  margin-left:2.5rem;
+}
+nav a:hover{opacity:1; color:var(--gold)}
+
+/* ── HERO ── */
+.hero{
+  min-height:100vh;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  align-items:center;
+  padding:8rem 4rem 4rem;
+  position:relative;
+  overflow:hidden;
+}
+.hero::before{
+  content:'';
+  position:absolute; inset:0;
+  background:
+    radial-gradient(ellipse 60% 70% at 70% 50%, rgba(42,107,104,0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 40% at 20% 80%, rgba(184,145,74,0.08) 0%, transparent 50%);
+  pointer-events:none;
+}
+.hero-text h1{
+  font-family:var(--serif);
+  font-size:clamp(3rem,6vw,5.5rem);
+  font-weight:300;
+  line-height:1.1;
+  margin-bottom:1rem;
+}
+.hero-text h1 em{
+  font-style:italic;
+  color:var(--gold);
+}
+.hero-text .subtitle{
+  font-size:0.85rem;
+  letter-spacing:0.2em;
+  text-transform:uppercase;
+  color:var(--gold);
+  margin-bottom:2rem;
+  opacity:0.8;
+}
+.hero-text p{
+  font-size:1rem;
+  color:rgba(247,243,237,0.65);
+  max-width:38ch;
+  line-height:1.8;
+  margin-bottom:2.5rem;
+}
+.hero-cta{
+  display:inline-flex; align-items:center; gap:0.6rem;
+  padding:0.75rem 1.8rem;
+  border:1px solid var(--gold);
+  color:var(--gold);
+  font-family:var(--sans);
+  font-size:0.78rem;
+  letter-spacing:0.15em;
+  text-transform:uppercase;
+  text-decoration:none;
+  transition:all .25s;
+}
+.hero-cta:hover{background:var(--gold); color:var(--ink)}
+.hero-cta svg{width:14px;height:14px;fill:currentColor}
+
+/* Stats grid */
+.stats-grid{
+  display:grid; grid-template-columns:1fr 1fr;
+  gap:1.5px;
+  background:var(--line);
+  border:1px solid var(--line);
+  align-self:center;
+}
+.stat-card{
+  background:var(--ink);
+  padding:2rem 1.8rem;
+  text-align:center;
+}
+.stat-number{
+  font-family:var(--serif);
+  font-size:clamp(2.5rem,4vw,4rem);
+  font-weight:300;
+  color:var(--gold);
+  line-height:1;
+  display:block;
+}
+.stat-label{
+  font-size:0.72rem;
+  letter-spacing:0.18em;
+  text-transform:uppercase;
+  color:rgba(247,243,237,0.5);
+  margin-top:0.4rem;
+  display:block;
+}
+
+/* ── SECTIONS ── */
+section{padding:6rem 4rem}
+section + section{border-top:1px solid var(--line)}
+
+.section-label{
+  font-size:0.72rem;
+  letter-spacing:0.25em;
+  text-transform:uppercase;
+  color:var(--gold);
+  margin-bottom:0.6rem;
+  opacity:0.8;
+}
+.section-title{
+  font-family:var(--serif);
+  font-size:clamp(2rem,3vw,2.8rem);
+  font-weight:300;
+  line-height:1.2;
+  margin-bottom:3rem;
+}
+.section-title em{font-style:italic; color:var(--gold)}
+
+/* ── TIMELINE CHART ── */
+.chart-wrap{
+  background:rgba(247,243,237,0.03);
+  border:1px solid var(--line);
+  padding:2rem;
+  border-radius:2px;
+  position:relative;
+}
+.chart-legend{
+  display:flex; gap:2rem; justify-content:flex-end;
+  margin-bottom:1.5rem;
+}
+.legend-item{display:flex; align-items:center; gap:0.5rem; font-size:0.78rem; color:rgba(247,243,237,0.6)}
+.legend-dot{width:10px;height:10px;border-radius:50%}
+
+/* ── ROLE BREAKDOWN ── */
+.role-grid{
+  display:grid; grid-template-columns:repeat(3,1fr); gap:2px;
+  background:var(--line);
+  margin-bottom:3rem;
+}
+.role-card{
+  background:var(--ink);
+  padding:2.5rem 2rem;
+}
+.role-card.first .role-accent{color:var(--teal)}
+.role-card.last  .role-accent{color:var(--gold)}
+.role-card.other .role-accent{color:var(--muted)}
+
+.role-accent{
+  font-family:var(--serif);
+  font-size:3.5rem;
+  font-weight:300;
+  line-height:1;
+  display:block;
+  margin-bottom:0.5rem;
+}
+.role-title{
+  font-size:0.75rem;
+  letter-spacing:0.18em;
+  text-transform:uppercase;
+  color:rgba(247,243,237,0.5);
+  margin-bottom:1.2rem;
+}
+.role-bar-wrap{height:3px; background:rgba(247,243,237,0.08); margin-bottom:0.8rem}
+.role-bar{height:100%; transition:width 1.5s ease}
+.role-card.first .role-bar{background:var(--teal)}
+.role-card.last  .role-bar{background:var(--gold)}
+.role-card.other .role-bar{background:var(--muted)}
+.role-meta{font-size:0.85rem; color:rgba(247,243,237,0.5)}
+.role-meta strong{color:var(--paper); font-weight:400}
+
+/* ── TOP PAPERS ── */
+.papers-list{display:flex; flex-direction:column; gap:1px; background:var(--line)}
+.paper-item{
+  background:var(--ink);
+  display:grid;
+  grid-template-columns:4rem 1fr auto;
+  gap:0 2rem;
+  align-items:center;
+  padding:1.5rem 2rem;
+  transition:background .2s;
+}
+.paper-item:hover{background:rgba(184,145,74,0.05)}
+.paper-rank{
+  font-family:var(--serif);
+  font-size:2.5rem;
+  font-weight:300;
+  color:rgba(184,145,74,0.25);
+  line-height:1;
+  text-align:right;
+}
+.paper-title{
+  font-family:var(--serif);
+  font-size:1.05rem;
+  font-weight:300;
+  line-height:1.4;
+  color:var(--paper);
+  margin-bottom:0.3rem;
+}
+.paper-meta{font-size:0.78rem; color:rgba(247,243,237,0.45); letter-spacing:0.05em}
+.paper-meta .journal{color:rgba(184,145,74,0.7)}
+.paper-role-tag{
+  font-size:0.65rem;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  padding:0.2rem 0.6rem;
+  border-radius:1px;
+  white-space:nowrap;
+}
+.tag-first{border:1px solid var(--teal); color:var(--teal)}
+.tag-last {border:1px solid rgba(184,145,74,0.5); color:var(--gold-lt)}
+.tag-other{border:1px solid var(--muted); color:var(--muted)}
+
+.cite-count{
+  font-family:var(--serif);
+  font-size:1.6rem;
+  color:var(--gold);
+  text-align:right;
+  line-height:1;
+}
+.cite-label{font-size:0.65rem; letter-spacing:0.1em; text-transform:uppercase; color:rgba(247,243,237,0.35)}
+
+.paper-right{text-align:right}
+
+/* ── JOURNALS ── */
+.journals-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:2px; background:var(--line)}
+.journal-item{
+  background:var(--ink);
+  padding:1.2rem 1.8rem;
+  display:flex; align-items:center; gap:1.5rem;
+}
+.journal-count{
+  font-family:var(--serif);
+  font-size:1.8rem;
+  color:var(--gold);
+  min-width:2.5rem;
+  text-align:center;
+  font-weight:300;
+}
+.journal-name{font-size:0.88rem; color:rgba(247,243,237,0.75)}
+.journal-bar{flex:1; height:2px; background:rgba(184,145,74,0.15); position:relative}
+.journal-bar::before{content:''; position:absolute; left:0; top:0; height:100%; background:var(--gold); opacity:0.5}
+
+/* ── FOOTER ── */
+footer{
+  padding:3rem 4rem;
+  border-top:1px solid var(--line);
+  display:flex; justify-content:space-between; align-items:center;
+}
+footer p{font-size:0.78rem; color:rgba(247,243,237,0.35); letter-spacing:0.1em}
+footer a{color:var(--gold); text-decoration:none; font-size:0.78rem; letter-spacing:0.12em; text-transform:uppercase}
+footer a:hover{opacity:0.7}
+
+/* ── ANIMATIONS ── */
+.fade-in{opacity:0; transform:translateY(24px); transition:opacity .7s ease, transform .7s ease}
+.fade-in.visible{opacity:1; transform:none}
+
+@media(max-width:900px){
+  .hero{grid-template-columns:1fr; padding:7rem 2rem 3rem}
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .hero-text p{max-width:none}
+  section{padding:4rem 2rem}
+  nav{padding:1rem 2rem}
+  .role-grid{grid-template-columns:1fr}
+  .journals-grid{grid-template-columns:1fr}
+  .paper-item{grid-template-columns:3rem 1fr; grid-template-rows:auto auto}
+  .paper-right{grid-column:2}
+}
+
+/* ── HERO PHOTO ── */
+.hero-photo-block{
+  display:flex;flex-direction:column;gap:2rem;
+  align-self:stretch;
+}
+.hero-photo-frame{
+  position:relative;
+  border:1px solid var(--line);
+  flex:1;
+  overflow:hidden;
+}
+.hero-photo-frame::after{
+  content:'';
+  position:absolute;
+  bottom:-12px;right:-12px;
+  width:55%;height:55%;
+  border:1px solid rgba(184,145,74,.2);
+  pointer-events:none;z-index:-1;
+}
+.hero-portrait{
+  width:100%;
+  height:100%;
+  min-height:420px;
+  aspect-ratio:unset;
+  object-fit:cover;
+  object-position:center 12%;
+  display:block;
+  filter:grayscale(15%) brightness(.95);
+}
+
+/* ── BACK TO MAIN BUTTON ── */
+.back-home{
+  position:fixed;
+  bottom:2rem;right:2rem;
+  z-index:500;
+  display:flex;align-items:center;gap:.6rem;
+  padding:.65rem 1.2rem;
+  background:rgba(13,17,23,.88);
+  backdrop-filter:blur(10px);
+  border:1px solid rgba(184,145,74,.3);
+  color:rgba(242,237,230,.7);
+  font-family:var(--sans);font-size:.68rem;
+  letter-spacing:.14em;text-transform:uppercase;
+  text-decoration:none;
+  transition:all .25s;
+  box-shadow:0 4px 20px rgba(0,0,0,.3);
+}
+.back-home:hover{
+  border-color:var(--gold),#b8914a);
+  color:var(--gold),#b8914a);
+  background:rgba(13,17,23,.96);
+}
+.back-home svg{
+  width:12px;height:12px;fill:currentColor;flex-shrink:0;
+}
+
+/* ── LOGOUT LINK ── */
+.logout-link{
+  font-size:.65rem;letter-spacing:.14em;text-transform:uppercase;
+  color:rgba(240,245,242,.3);text-decoration:none;
+  transition:color .2s;cursor:pointer;
+}
+.logout-link:hover{color:#e07070}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="#" class="nav-logo">Carlborg Consulting</a>
+  <div>
+    <a href="#forskning">Forskning</a>
+    <a href="#publikationer-section">Nyckelartiklar</a>
+    <a href="karriar.html">Karriär & CV</a><a href="publikationer.html">Alla publikationer</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-text fade-in">
+    <p class="subtitle">Vetenskaplig Profil</p>
+    <h1>24 år av<br><em>vetenskaplig</em><br>excellens</h1>
+    <p>Kvantitativ genetik, epistasis och genomik — forskning som lagt grunden för modern förståelse av komplexa genetiska fenomen.</p>
+    <a href="publikationer.html" class="hero-cta">
+      <svg viewBox="0 0 16 16"><path d="M2 2h12v12H2V2zm1 1v10h10V3H3zm2 2h6v1H5V5zm0 2h6v1H5V7zm0 2h4v1H5V9z"/></svg>
+      Komplett publikationslista
+    </a>
+  </div>
+  <div class="hero-photo-block fade-in" style="transition-delay:.2s">
+    <div class="hero-photo-frame">
+      <img src="orjan.jpg" alt="Örjan Carlborg" class="hero-portrait">
+    </div>
+    <div class="stats-grid">
+    <div class="stat-card">
+      <span class="stat-number" data-target="150">0</span>
+      <span class="stat-label">Publikationer</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-number" data-target="10888">0</span>
+      <span class="stat-label">Citeringar</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-number" data-target="44">0</span>
+      <span class="stat-label">h-index</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-number" data-target="24">0</span>
+      <span class="stat-label">År aktiv forskning</span>
+    </div>
+    </div>
+  </div>
+</section>
+
+<section id="forskning">
+  <p class="section-label">Karriäröversikt · 1998–2022</p>
+  <h2 class="section-title">Publikationer &amp; <em>genomslag</em> över tid</h2>
+  <div class="chart-wrap fade-in">
+    <div class="chart-legend">
+      <span class="legend-item"><span class="legend-dot" style="background:#b8914a"></span>Citeringar per år</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#2a6b68"></span>Antal publikationer</span>
+    </div>
+    <canvas id="timelineChart" height="90"></canvas>
+  </div>
+</section>
+
+<section>
+  <p class="section-label">Bidrag efter roll</p>
+  <h2 class="section-title">Fördelning av<br><em>författarskap</em></h2>
+  <div class="role-grid">
+    <div class="role-card first fade-in">
+      <span class="role-accent">15</span>
+      <div class="role-title">Förstaförfattare</div>
+      <div class="role-bar-wrap"><div class="role-bar" data-width="10" style="width:0%"></div></div>
+      <p class="role-meta"><strong>2 506</strong> citeringar · <strong>23 %</strong> av totalt</p>
+      <p class="role-meta" style="margin-top:.4rem;font-size:.78rem">Metodutveckling och egna forskningslinjer</p>
+    </div>
+    <div class="role-card last fade-in" style="transition-delay:.1s">
+      <span class="role-accent">89</span>
+      <div class="role-title">Sistaförfattare / Seniorforskar­e</div>
+      <div class="role-bar-wrap"><div class="role-bar" data-width="59" style="width:0%"></div></div>
+      <p class="role-meta"><strong>3 025</strong> citeringar · <strong>28 %</strong> av totalt</p>
+      <p class="role-meta" style="margin-top:.4rem;font-size:.78rem">Handledare och ansvarig forskare</p>
+    </div>
+    <div class="role-card other fade-in" style="transition-delay:.2s">
+      <span class="role-accent">46</span>
+      <div class="role-title">Övriga samförfattare</div>
+      <div class="role-bar-wrap"><div class="role-bar" data-width="31" style="width:0%"></div></div>
+      <p class="role-meta"><strong>5 357</strong> citeringar · <strong>49 %</strong> av totalt</p>
+      <p class="role-meta" style="margin-top:.4rem;font-size:.78rem">Breda samarbeten och konsortier</p>
+    </div>
+  </div>
+</section>
+
+<section id="publikationer-section">
+  <p class="section-label">Mest citerade</p>
+  <h2 class="section-title">Tio artiklar med<br>störst <em>genomslag</em></h2>
+  <div class="papers-list" id="topPapersList"></div>
+</section>
+
+<section>
+  <p class="section-label">Publiceringskanaler</p>
+  <h2 class="section-title">Tidskrifter &amp; <em>forums</em></h2>
+  <div class="journals-grid" id="journalGrid"></div>
+</section>
+
+
+
+<section style="border-top:1px solid var(--line)">
+  <p class="section-label">Idrottsledarskap · 2016–2025</p>
+  <h2 class="section-title"><em>Friidrottscoach</em> på elitnivå</h2>
+  <div style="display:grid;grid-template-columns:2fr 1fr;gap:2px;background:var(--line)">
+    <div style="background:var(--ink);padding:2.5rem">
+      <p style="font-family:var(--serif);font-size:1.15rem;font-weight:300;color:rgba(247,243,237,.7);line-height:1.75;max-width:60ch;margin-bottom:2rem">
+        Parallellt med forskarkarriären har Örjan sedan 2016 coachat friidrottare 
+        till SM-medaljer och landslagsrepresentation — bl.a. sprinterana 
+        <strong style="color:var(--paper);font-weight:400">Erik Hagberg</strong> (100m PB 10.15) och 
+        <strong style="color:var(--paper);font-weight:400">Simon Plesse</strong> 
+        (SM-silver 100m 2023, 10.27 — åttonde snabbaste Swede genom tiderna).
+      </p>
+      <div style="display:flex;gap:3rem;flex-wrap:wrap">
+        <div><span style="font-family:var(--serif);font-size:2.2rem;color:var(--gold);display:block;line-height:1">★</span><span style="font-size:.65rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(247,243,237,.4)">Årets ledare<br>Upplands FF</span></div>
+        <div><span style="font-family:var(--serif);font-size:2.2rem;color:var(--gold);display:block;line-height:1">SM</span><span style="font-size:.65rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(247,243,237,.4)">Medaljörer<br>coachade</span></div>
+        <div><span style="font-family:var(--serif);font-size:2.2rem;color:var(--gold);display:block;line-height:1">LS</span><span style="font-size:.65rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(247,243,237,.4)">Landslagsmän<br>JEM, NM, Finnkampen</span></div>
+        <div><span style="font-family:var(--serif);font-size:2.2rem;color:var(--gold);display:block;line-height:1">ALTIS</span><span style="font-size:.65rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(247,243,237,.4)">Mentorship<br>Phase III: Mastery</span></div>
+      </div>
+    </div>
+    <div style="background:rgba(42,107,104,.06);padding:2.5rem;display:flex;flex-direction:column;justify-content:space-between">
+      <div>
+        <p style="font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);opacity:.7;margin-bottom:.8rem">Certifieringar</p>
+        <p style="font-size:.85rem;color:rgba(247,243,237,.6);line-height:1.7">ALTIS Phase III: Mastery<br>SFIF Certified Coach<br>Sprint &amp; häck, 14–17 år<br>Instruktör Friidrottsgymnasiet Uppsala</p>
+      </div>
+      <a href="karriar.html#idrottsledarskap" style="display:inline-block;margin-top:1.5rem;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);text-decoration:none;border-bottom:1px solid rgba(184,145,74,.3);padding-bottom:.1rem;align-self:flex-start">Mer om idrottsledarskapet →</a>
+    </div>
+  </div>
+</section>
+
+<section style="border-top:1px solid var(--line)">
+  <p class="section-label">Kompetens utöver forskningen</p>
+  <h2 class="section-title"><em>Ekonomisk</em> expertis</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:2px;background:var(--line)">
+    <div style="background:var(--ink);padding:2.5rem">
+      <p style="font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:1rem;opacity:.8">YH Redovisningsekonom · Iterum · 2023–2024</p>
+      <p style="font-family:var(--serif);font-size:1.3rem;font-weight:300;line-height:1.6;color:rgba(247,243,237,.75);margin-bottom:1.5rem">
+        Utöver den vetenskapliga karriären har Örjan genomfört en YH-utbildning 
+        till Redovisningsekonom med samtliga avslutade kurser på betyget 
+        <span style="color:var(--gold)">Väl Godkänt</span>.
+      </p>
+      <div style="display:flex;gap:1.5rem;flex-wrap:wrap">
+        <div><span style="font-family:var(--serif);font-size:2rem;color:var(--gold);display:block;line-height:1">VG</span><span style="font-size:.65rem;letter-spacing:.16em;text-transform:uppercase;color:rgba(247,243,237,.4)">Snittbetyg</span></div>
+        <div><span style="font-family:var(--serif);font-size:2rem;color:var(--gold);display:block;line-height:1">400</span><span style="font-size:.65rem;letter-spacing:.16em;text-transform:uppercase;color:rgba(247,243,237,.4)">YH-poäng</span></div>
+        <div><span style="font-family:var(--serif);font-size:2rem;color:var(--gold);display:block;line-height:1">10</span><span style="font-size:.65rem;letter-spacing:.16em;text-transform:uppercase;color:rgba(247,243,237,.4)">Kurser avslutade</span></div>
+      </div>
+    </div>
+    <div style="background:var(--ink);padding:2.5rem;border-left:1px solid var(--line)">
+      <p style="font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:1.2rem;opacity:.8">Täcker bl.a.</p>
+      <div style="display:flex;flex-direction:column;gap:.7rem">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:.7rem;border-bottom:1px solid rgba(184,145,74,.1)"><span style="font-size:.88rem;color:rgba(247,243,237,.7)">Löpande bokföring & bokslut</span><span style="font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;padding:.15rem .5rem;border:1px solid rgba(42,107,104,.4);color:#5bbfba">VG</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:.7rem;border-bottom:1px solid rgba(184,145,74,.1)"><span style="font-size:.88rem;color:rgba(247,243,237,.7)">Lönehantering</span><span style="font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;padding:.15rem .5rem;border:1px solid rgba(42,107,104,.4);color:#5bbfba">VG</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:.7rem;border-bottom:1px solid rgba(184,145,74,.1)"><span style="font-size:.88rem;color:rgba(247,243,237,.7)">Beskattningsrätt</span><span style="font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;padding:.15rem .5rem;border:1px solid rgba(42,107,104,.4);color:#5bbfba">VG</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:.7rem;border-bottom:1px solid rgba(184,145,74,.1)"><span style="font-size:.88rem;color:rgba(247,243,237,.7)">Ekonomistyrning & rapportering</span><span style="font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;padding:.15rem .5rem;border:1px solid rgba(42,107,104,.4);color:#5bbfba">VG</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:.88rem;color:rgba(247,243,237,.7)">Mervärdesskatt & Handelsrätt</span><span style="font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;padding:.15rem .5rem;border:1px solid rgba(107,101,96,.35);color:var(--muted)">Pågår</span></div>
+      </div>
+      <a href="karriar.html#redovisning" style="display:inline-block;margin-top:1.5rem;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);text-decoration:none;border-bottom:1px solid rgba(184,145,74,.3);padding-bottom:.1rem">Se fullständig studieplan →</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>© Carlborg Consulting · Vetenskaplig karriär 1998–2022</p>
+  <a href="publikationer.html">→ Komplett publikationslista</a>
+</footer>
+
+<script>
+const DATA = {"career_start":1998,"career_end":2022,"total_pubs":150,"total_cites":10888,"h_index":44,"pubs_per_year":{"1998":0,"1999":3,"2000":2,"2001":1,"2002":5,"2003":2,"2004":8,"2005":3,"2006":6,"2007":8,"2008":8,"2009":13,"2010":11,"2011":10,"2012":11,"2013":17,"2014":4,"2015":9,"2016":4,"2017":7,"2018":6,"2019":7,"2020":4,"2021":0,"2022":1},"cites_per_year":{"1999":5,"2000":5,"2001":52,"2002":73,"2003":107,"2004":168,"2005":250,"2006":306,"2007":350,"2008":295,"2009":372,"2010":494,"2011":483,"2012":545,"2013":585,"2014":717,"2015":688,"2016":660,"2017":651,"2018":708,"2019":614,"2020":675,"2021":584,"2022":571},"role_counts":{"Förstaförfattare":15,"Övriga":46,"Sistaförfattare":89},"role_cites":{"Förstaförfattare":2506,"Övriga":5357,"Sistaförfattare":3025},"publications":[{"year":2010,"title":"Whole-genome resequencing reveals loci under selection during chicken domestication","journal":"Nature","citations":1253,"role":"Övriga","first_author":"Rubin, Carl-Johan"},{"year":2004,"title":"Epistasis: too often neglected in complex trait studies?","journal":"Nature Reviews Genetics","citations":1212,"role":"Förstaförfattare","first_author":"Carlborg, Örjan"},{"year":2000,"title":"The origin of the domestic pig: independent domestication and subsequent introgression","journal":"Genetics","citations":1038,"role":"Övriga","first_author":"Giuffra, EJMH"},{"year":2012,"title":"Strong signatures of selection in the domestic pig genome","journal":"Proceedings of the National Academy of Sciences","citations":728,"role":"Övriga","first_author":"Rubin, Carl-Johan"},{"year":2011,"title":"Identification of genomic regions associated with phenotypic variation between dog breeds using selection mapping","journal":"PLoS genetics","citations":470,"role":"Övriga","first_author":"Vaysse, Amaury"},{"year":2006,"title":"Epistasis and the release of genetic variation during long-term selection","journal":"Nature genetics","citations":360,"role":"Förstaförfattare","first_author":"Carlborg, Örjan"},{"year":2003,"title":"A global search reveals epistatic interaction between QTL for early growth in the chicken","journal":"Genome research","citations":319,"role":"Förstaförfattare","first_author":"Carlborg, Örjan"},{"year":2003,"title":"The twofold difference in adult size between the red junglefowl and White Leghorn chickens is largely explained by a limited number of QTLs","journal":"Animal genetics","citations":267,"role":"Övriga","first_author":"Kerje, Susanne"},{"year":2007,"title":"A unified model for functional and statistical epistasis and its application in quantitative trait loci analysis","journal":"Genetics","citations":258,"role":"Sistaförfattare","first_author":"Alvarez-Castro, José M"},{"year":2000,"title":"The use of a genetic algorithm for simultaneous mapping of multiple interacting quantitative trait loci","journal":"Genetics","citations":238,"role":"Förstaförfattare","first_author":"Carlborg, Örjan"},{"year":2008,"title":"Evolutionary potential of hidden genetic variation","journal":"Trends in ecology & evolution","citations":238,"role":"Sistaförfattare","first_author":"Le Rouzic, Arnaud"},{"year":2013,"title":"A century after Fisher: time for a new paradigm in quantitative genetics","journal":"Trends in Genetics","citations":185,"role":"Sistaförfattare","first_author":"Nelson, Ronald M"},{"year":2012,"title":"Inheritance beyond plain heritability: variance-controlling genes in Arabidopsis thaliana","journal":"","citations":177,"role":"Sistaförfattare","first_author":"Shen, Xia"},{"year":2014,"title":"Natural CMT2 variation is associated with genome-wide methylation changes and temperature seasonality","journal":"PLoS genetics","citations":175,"role":"Sistaförfattare","first_author":"Shen, Xia"},{"year":2010,"title":"Genome-wide effects of long-term divergent selection","journal":"PLoS genetics","citations":171,"role":"Sistaförfattare","first_author":"Johansson, Anna M"},{"year":2002,"title":"QTL analysis of a red junglefowl× White Leghorn intercross reveals trade-off in resource allocation between behavior and production traits","journal":"Behavior genetics","citations":168,"role":"Övriga","first_author":"Schütz, Karin"},{"year":2004,"title":"Major growth QTLs in fowl are related to fearful behavior: possible genetic links between fear responses and production traits in a red junglefowl× White Leghorn intercross","journal":"Behavior genetics","citations":161,"role":"Övriga","first_author":"Schütz, Karin E"},{"year":2009,"title":"Genetic architecture of tameness in a rat model of animal domestication","journal":"Genetics","citations":156,"role":"Övriga","first_author":"Albert, Frank W"},{"year":2017,"title":"Accounting for genetic interactions improves modeling of individual quantitative trait phenotypes in yeast","journal":"Nature genetics","citations":150,"role":"Sistaförfattare","first_author":"Forsberg, Simon KG"},{"year":2007,"title":"Statistical epistasis is a generic feature of gene regulatory networks","journal":"Genetics","citations":141,"role":"Sistaförfattare","first_author":"Gjuvsland, Arne B"},{"year":2004,"title":"Feather-pecking and victim pigmentation","journal":"Nature","citations":140,"role":"Övriga","first_author":"Keeling, Linda"},{"year":2004,"title":"Arrival synchrony in migratory birds","journal":"Nature","citations":119,"role":"Övriga","first_author":"Gunnarsson, TG"},{"year":2004,"title":"Simultaneous mapping of epistatic QTL in chickens reveals clusters of QTL pairs with similar genetic effects on growth","journal":"Genetics Research","citations":113,"role":"Förstaförfattare","first_author":"Carlborg, Örjan"},{"year":2004,"title":"Simultaneous search for multiple QTL using the global optimization algorithm DIRECT","journal":"Bioinformatics","citations":107,"role":"Sistaförfattare","first_author":"Ljungberg, Kajsa"},{"year":2002,"title":"Melanocortin‐4 receptor (MC4R) genotypes have no major effect on fatness in a Large White× Wild Boar intercross","journal":"Animal genetics","citations":106,"role":"Övriga","first_author":"Park, Hee-Bok"},{"year":2013,"title":"Genome-wide analysis in German shepherd dogs reveals association of a locus on CFA 27 with atopic dermatitis","journal":"PLoS genetics","citations":92,"role":"Övriga","first_author":"Tengvall, Katarina"},{"year":2015,"title":"Reassess the t test: interact with all your data via ANOVA","journal":"The Plant Cell","citations":90,"role":"Övriga","first_author":"Brady, Siobhan M"},{"year":2005,"title":"Methodological aspects of the genetic dissection of gene expression","journal":"Bioinformatics","citations":89,"role":"Förstaförfattare","first_author":"Carlborg, Örjan"},{"year":2008,"title":"Dissection of the genetic architecture of body weight in chicken reveals the impact of epistasis on domestication traits","journal":"Genetics","citations":89,"role":"Sistaförfattare","first_author":"Le Rouzic, Arnaud"},{"year":2009,"title":"Comparison of analyses of the QTLMAS XII common dataset. I: Genomic selection","journal":"BMC proceedings","citations":88,"role":"Sistaförfattare","first_author":"Lund, Mogens Sandø"},{"year":2011,"title":"Replication and explorations of high-order epistasis using a large advanced intercross line pedigree","journal":"PLoS genetics","citations":86,"role":"Sistaförfattare","first_author":"Pettersson, Mats"},{"year":1999,"title":"High in situ rat intestinal permeability of artemisinin unaffected by multiple dosing and with no evidence of P-glycoprotein involvement","journal":"Drug metabolism and disposition","citations":83,"role":"Övriga","first_author":"Svensson, Ulrika SH"},{"year":2015,"title":"The multi-allelic genetic architecture of a variance-heterogeneity locus for molybdenum concentration in leaves acts as a source of unexplained additive genetic variance","journal":"PLoS Genetics","citations":82,"role":"Sistaförfattare","first_author":"Forsberg, Simon KG"},{"year":2009,"title":"Genetic analysis of an F2 intercross between two chicken lines divergently selected for body-weight","journal":"BMC genomics","citations":81,"role":"Övriga","first_author":"Wahlberg, Per"},{"year":2014,"title":"Genetic influences on brain gene expression in rats selected for tameness and aggression","journal":"Genetics","citations":76,"role":"Sistaförfattare","first_author":"Heyne, Henrike O"},{"year":2002,"title":"Use of randomization testing to detect multiple epistatic QTLs","journal":"Genetics Research","citations":75,"role":"Förstaförfattare","first_author":"Carlborg, Örjan"},{"year":2005,"title":"The genetic dissection of immune response using gene-expression studies and genome mapping","journal":"Veterinary immunology and immunopathology","citations":65,"role":"Övriga","first_author":"de Koning, Dirk-Jan"},{"year":2016,"title":"A complex structural variation on chromosome 27 leads to the ectopic expression of HOXB8 and the muffs and beard phenotype in chickens","journal":"PLoS Genetics","citations":63,"role":"Övriga","first_author":"Guo, Ying"},{"year":2015,"title":"Mitogenomic analysis of a 50-generation chicken pedigree reveals a rapid rate of mitochondrial evolution and evidence for paternal mtDNA inheritance","journal":"Biology letters","citations":57,"role":"Övriga","first_author":"Alexander, Michelle"},{"year":2005,"title":"Simultaneous mapping of epistatic QTL in DU6i× DBA/2 mice","journal":"Mammalian Genome","citations":56,"role":"Förstaförfattare","first_author":"Carlborg, Örjan"},{"year":2011,"title":"Fine mapping and replication of QTL in outbred chicken advanced intercross lines","journal":"Genetics Selection Evolution","citations":56,"role":"Sistaförfattare","first_author":"Besnier, Francois"},{"year":2015,"title":"A genome-wide association analysis reveals epistatic cancellation of additive genetic variance for root length in Arabidopsis thaliana","journal":"PLoS genetics","citations":54,"role":"Sistaförfattare","first_author":"Lachowiec, Jennifer"},{"year":2008,"title":"How to perform meaningful estimates of genetic effects","journal":"PLoS genetics","citations":46,"role":"Sistaförfattare","first_author":"Alvarez-Castro, Jose M"},{"year":2013,"title":"Identification of candidate genes and mutations in QTL regions for chicken growth using bioinformatic analysis of NGS and SNP-chip data","journal":"Frontiers in genetics","citations":45,"role":"Övriga","first_author":"Ahsan, Muhammad"},{"year":2006,"title":"Epistatic regulation of behavioural and morphological traits in the zebrafish (Danio rerio)","journal":"Behavior genetics","citations":44,"role":"Sistaförfattare","first_author":"Wright, Dominic"},{"year":2007,"title":"Phenotypic evolution from genetic polymorphisms in a radial network architecture","journal":"BMC biology","citations":43,"role":"Sistaförfattare","first_author":"Le Rouzic, Arnaud"},{"year":2022,"title":"Researching on the fine structure and admixture of the worldwide chicken population reveal connections between populations and important events in breeding history","journal":"Evolutionary Applications","citations":42,"role":"Sistaförfattare","first_author":"Guo, Ying"},{"year":2013,"title":"Beware of risk for increased false positive rates in genome-wide association studies for phenotypic variability","journal":"Frontiers in genetics","citations":39,"role":"Sistaförfattare","first_author":"Shen, Xia"},{"year":2015,"title":"Multiple changes of gene expression and function reveal genomic and phenotypic complexity in SLE-like disease","journal":"PLoS genetics","citations":35,"role":"Sistaförfattare","first_author":"Wilbe, Maria"},{"year":2020,"title":"Multiple ancestral haplotypes harboring regulatory mutations cumulatively contribute to a QTL affecting chicken growth traits","journal":"Communications Biology","citations":35,"role":"Övriga","first_author":"Wang, Yuzhe"},{"year":2011,"title":"Targeted resequencing of a genomic region influencing tameness and aggression reveals multiple signals of positive selection","journal":"Heredity","citations":34,"role":"Övriga","first_author":"Albert, Frank W"},{"year":2017,"title":"Artificial selection response due to polygenic adaptation from a multilocus, multiallelic genetic architecture","journal":"Molecular biology and evolution","citations":34,"role":"Sistaförfattare","first_author":"Zan, Yanjun"},{"year":2008,"title":"An improved method for quantitative trait loci detection and identification of within-line segregation in F2 intercross designs","journal":"Genetics","citations":33,"role":"Sistaförfattare","first_author":"Rönnegård, Lars"},{"year":2002,"title":"Efficient algorithms for quantitative trait loci mapping problems","journal":"Journal of Computational Biology","citations":32,"role":"Sistaförfattare","first_author":"Ljungberg, Kajsa"},{"year":2013,"title":"Variance heterogeneity in Saccharomyces cerevisiae expression data: trans-regulation and epistasis","journal":"PloS one","citations":31,"role":"Sistaförfattare","first_author":"Nelson, Ronald M"},{"year":2017,"title":"On the relationship between epistasis and genetic variance heterogeneity","journal":"Journal of experimental botany","citations":31,"role":"Sistaförfattare","first_author":"Forsberg, Simon KG"},{"year":2020,"title":"Dynamic genetic architecture of yeast response to environmental perturbation shed light on origin of cryptic genetic variation","journal":"PLoS genetics","citations":31,"role":"Sistaförfattare","first_author":"Zan, Yanjun"},{"year":2013,"title":"Dynamics of adaptive alleles in divergently selected body weight lines of chickens","journal":"G3: Genes, Genomes, Genetics","citations":30,"role":"Sistaförfattare","first_author":"Pettersson, Mats E"},{"year":2018,"title":"Genomic signatures of 60 years of bidirectional selection for 8-week body weight in chickens","journal":"Poultry Science","citations":29,"role":"Sistaförfattare","first_author":"Lillie, Mette"},{"year":2016,"title":"Genetic regulation of transcriptional variation in natural Arabidopsis thaliana accessions","journal":"G3: Genes, Genomes, Genetics","citations":28,"role":"Sistaförfattare","first_author":"Zan, Yanjun"},{"year":2017,"title":"Genome-wide standing variation facilitates long-term response to bidirectional selection for antibody response in chickens","journal":"BMC genomics","citations":28,"role":"Sistaförfattare","first_author":"Lillie, Mette"},{"year":2010,"title":"SNP detection and prediction of variability between chicken lines using genome resequencing of DNA pools","journal":"BMC genomics","citations":26,"role":"Sistaförfattare","first_author":"Marklund, Stefan"},{"year":2017,"title":"Genetics of interactive behavior in silver foxes (Vulpes vulpes)","journal":"Behavior genetics","citations":26,"role":"Övriga","first_author":"Nelson, Ronald M"},{"year":2007,"title":"Separation of base allele and sampling term effects gives new insights in variance component QTL analysis","journal":"BMC genetics","citations":24,"role":"Sistaförfattare","first_author":"Rönnegård, Lars"},{"year":2009,"title":"Comparison of analyses of the QTLMAS XII common dataset. II: genome-wide association and fine mapping","journal":"BMC proceedings","citations":24,"role":"Sistaförfattare","first_author":"Crooks, Lucy"},{"year":2009,"title":"cnF2freq: efficient determination of genotype and haplotype probabilities in outbred populations using Markov models","journal":"International Conference on Bioinformatics and Computational Biology","citations":21,"role":"Sistaförfattare","first_author":"Nettelblad, Carl"},{"year":2013,"title":"Higher order interactions: detection of epistasis using machine learning and evolutionary computation","journal":"Genome-Wide Association Studies and Genomic Prediction","citations":19,"role":"Sistaförfattare","first_author":"Nelson, Ronald M"},{"year":2019,"title":"Bidirectional selection for body weight on standing genetic variation in a chicken model","journal":"G3: Genes, Genomes, Genetics","citations":19,"role":"Sistaförfattare","first_author":"Lillie, Mette"},{"year":2011,"title":"Hierarchical likelihood opens a new way of estimating genetic values using genome-wide dense marker maps","journal":"BMC proceedings","citations":18,"role":"Sistaförfattare","first_author":"Shen, Xia"},{"year":2013,"title":"PASE: a novel method for functional prediction of amino acid substitutions based on physicochemical properties","journal":"Frontiers in genetics","citations":18,"role":"Övriga","first_author":"Li, Xidan"},{"year":2019,"title":"A genomic inference of the White Plymouth Rock genealogy","journal":"Poultry Science","citations":18,"role":"Sistaförfattare","first_author":"Guo, Ying"},{"year":2002,"title":"New methods for mapping quantitative trait loci","journal":"Acta Universitatis Agriculturae Sueciae. Veterinaria","citations":17,"role":"Förstaförfattare","first_author":"Carlborg, Örjan"},{"year":2001,"title":"Parallel computing in interval mapping of quantitative trait loci","journal":"Journal of Heredity","citations":16,"role":"Förstaförfattare","first_author":"Carlborg, Örjan"},{"year":2012,"title":"Modelling of genetic interactions improves prediction of hybrid patterns–a case study in domestic fowl","journal":"Genetics Research","citations":16,"role":"Sistaförfattare","first_author":"Alvarez-Castro, Jose M"},{"year":2013,"title":"Identification of null alleles and deletions from SNP genotypes for an intercross between domestic and wild chickens","journal":"G3: Genes, Genomes, Genetics","citations":16,"role":"Övriga","first_author":"Crooks, Lucy"},{"year":2011,"title":"An improved method for estimating chromosomal line origin in QTL analysis of crosses between outbred lines","journal":"G3: Genes| Genomes| Genetics","citations":15,"role":"Sistaförfattare","first_author":"Crooks, Lucy"},{"year":2008,"title":"Defining the assumptions underlying modeling of epistatic QTL using variance component methods","journal":"Journal of Heredity","citations":14,"role":"Sistaförfattare","first_author":"Rönnegård, Lars"},{"year":2015,"title":"Cgmisc: enhanced genome-wide association analyses and visualization","journal":"Bioinformatics","citations":14,"role":"Sistaförfattare","first_author":"Kierczak, Marcin"},{"year":2012,"title":"Selection on variance-controlling genes: adaptability or stability","journal":"Evolution","citations":13,"role":"Sistaförfattare","first_author":"Pettersson, Mats E"},{"year":2015,"title":"The shepherds’ tale: A genome-wide study across 9 dog breeds implicates two loci in the regulation of fructosamine serum concentration in Belgian shepherds","journal":"PloS one","citations":13,"role":"Övriga","first_author":"Forsberg, Simon KG"},{"year":2007,"title":"A general and efficient method for estimating continuous IBD functions for use in genome scans for QTL","journal":"BMC bioinformatics","citations":11,"role":"Sistaförfattare","first_author":"Besnier, Francois"},{"year":2007,"title":"Increasing the efficiency of variance component quantitative trait loci analysis by using reduced-rank identity-by-descent matrices","journal":"Genetics","citations":10,"role":"Sistaförfattare","first_author":"Rönnegård, Lars"},{"year":2012,"title":"Estimation and interpretation of genetic effects with epistasis using the NOIA model","journal":"Quantitative Trait Loci (QTL) Methods and Protocols","citations":10,"role":"Övriga","first_author":"Alvarez-Castro, Jose M"},{"year":2013,"title":"MAPfastR: quantitative trait loci mapping in outbred line crosses","journal":"G3: Genes, Genomes, Genetics","citations":10,"role":"Övriga","first_author":"Nelson, Ronald M"},{"year":2014,"title":"Application of a genomic model for high‐dimensional chemometric analysis","journal":"Journal of Chemometrics","citations":10,"role":"Sistaförfattare","first_author":"Shen, Xia"},{"year":2012,"title":"Generation of a multi-locus chicken introgression line to study the effects of genetic interactions on metabolic phenotypes in chickens","journal":"Frontiers in genetics","citations":9,"role":"Sistaförfattare","first_author":"Ek, Weronica"},{"year":2011,"title":"qtl. outbred: Interfacing outbred line cross data with the R/qtl mapping software","journal":"BMC Research Notes","citations":8,"role":"Sistaförfattare","first_author":"Nelson, Ronald M"},{"year":2009,"title":"A genetic algorithm based method for stringent haplotyping of family data","journal":"BMC genetics","citations":7,"role":"Sistaförfattare","first_author":"Besnier, Francois"},{"year":2010,"title":"Genetic analysis of metabolic traits in an intercross between body weight-selected chicken lines","journal":"Physiological genomics","citations":6,"role":"Sistaförfattare","first_author":"Ek, Weronica"},{"year":2013,"title":"Genetic analysis of metabolic traits in an intercross","journal":"Physiol. Genomics","citations":6,"role":"Förstaförfattare","first_author":"Carlborg, Örjan"},{"year":2020,"title":"Dissecting the genetic regulation of yeast growth plasticity in response to environmental changes","journal":"Genes","citations":6,"role":"Sistaförfattare","first_author":"Zan, Yanjun"},{"year":2012,"title":"Coherent estimates of genetic effects with missing information","journal":"Open Journal of Genetics","citations":5,"role":"Övriga","first_author":"Nettelblad, Carl"},{"year":2006,"title":"Detection of epistatic QTL.","journal":"","citations":5,"role":"Förstaförfattare","first_author":"Carlborg, Ö"},{"year":2010,"title":"Dissecting the genetic architecture of complex traits and its impact on genetic improvement programs: lessons learnt from the Virginia chicken lines","journal":"Revista Brasileira de Zootecnia","citations":4,"role":"Sistaförfattare","first_author":"Pettersson, Mats E"},{"year":2014,"title":"Capacitating epistasis—detection and role in the genetic architecture of complex traits","journal":"Epistasis: Methods and Protocols","citations":4,"role":"Sistaförfattare","first_author":"Pettersson, Mats E"},{"year":2011,"title":"How to deal with genotype uncertainty in variance component quantitative trait loci analyses","journal":"Genetics Research","citations":3,"role":"Sistaförfattare","first_author":"Shen, Xia"},{"year":2008,"title":"The yank of Dobzhansky’s bequest","journal":"Evolutionary Biology","citations":3,"role":"Sistaförfattare","first_author":"Alvarez-Castro, José M"},{"year":2010,"title":"Genomic analysis of variation in hindlimb musculature of mice from the C57BL/6J and DBA/2J lineage","journal":"Journal of heredity","citations":3,"role":"Övriga","first_author":"Lionikas, Arimantas"},{"year":2004,"title":"Global optimization in QTL analysis","journal":"Poster-International Conference on Research in Computational Molecular Biology","citations":3,"role":"Sistaförfattare","first_author":"Ljungberg, Kajsa"},{"year":2011,"title":"GWAS Analysis in Stratified Populations-LUPA Workshop","journal":"","citations":3,"role":"Sistaförfattare","first_author":"Kierczak, Marcin"},{"year":2018,"title":"High throughput, cost-efficient library preparation protocol for large scale next-generation sequencing V. 2","journal":"Protocols. Io","citations":3,"role":"Sistaförfattare","first_author":"Zan, Yanjun"},{"year":2011,"title":"Genetic mapping of loci underlying vitiligo in the Smyth Line chicken model: P60","journal":"Pigment Cell & Melanoma Research","citations":2,"role":"Övriga","first_author":"Kerje, S"},{"year":2004,"title":"Feather-pecking and victim pigmentation: A genetic factor that encourages this form of farmyard bullying has been identified.","journal":"Nature","citations":2,"role":"Övriga","first_author":"Keeling, Linda"},{"year":2009,"title":"Modelling dominance in a flexible intercross analysis","journal":"BMC genetics","citations":1,"role":"Sistaförfattare","first_author":"Rönnegård, Lars"},{"year":2010,"title":"On orthogonal QTL parameter estimates with incomplete genotype information","journal":"10th WCGALP, Leipzig, Germany","citations":1,"role":"Övriga","first_author":"Nettelblad, C"},{"year":2017,"title":"Imputation-based fine-mapping suggests that most QTL in an outbred chicken advanced intercross body weight line are due to multiple, linked loci","journal":"G3: Genes, Genomes, Genetics","citations":1,"role":"Sistaförfattare","first_author":"Brandt, Monika"},{"year":2020,"title":"Haplotype Purging after Relaxation of Selection in Lines of Chickens That Had Undergone Long-Term Selection for High and Low Body Weight","journal":"Genes","citations":1,"role":"Sistaförfattare","first_author":"Yang, Yunzhou"},{"year":2016,"title":"Imputation-based fine-mapping suggests that most QTL in an outbred chicken Advanced Intercross Line are due to multiple, linked loci","journal":"bioRxiv","citations":1,"role":"Sistaförfattare","first_author":"Brandt, Monika"},{"year":2016,"title":"Genetic regulation of transcriptional variation in wild-collected Arabidopsis thaliana accessions","journal":"bioRxiv","citations":1,"role":"Sistaförfattare","first_author":"Zan, Yanjun"},{"year":2006,"title":"A new efficient method for QTL mapping in divergent intercrosses incorporating within line variation","journal":"8th World Congress on Genetics Applied to Livestock Production, Brazil, 2006","citations":0,"role":"Sistaförfattare","first_author":"Rönnegård, Lars"},{"year":2006,"title":"On the modeling of epistasis in variance component QTL mapping","journal":"","citations":0,"role":"Sistaförfattare","first_author":"Rönnegård, L"},{"year":2010,"title":"Assessing orthogonality and statistical properties of linear regression methods for interval mapping with partial information","journal":"","citations":0,"role":"Övriga","first_author":"Nettelblad, Carl"},{"year":2012,"title":"A genome-wide association study using international breeding-evaluation data identifies major loci affecting production traits and stature in the Brown Swiss cattle breed","journal":"BMC genetics","citations":0,"role":"Sistaförfattare","first_author":"Guo, Jiazhong"},{"year":2013,"title":"Genetic dissection of growth traits in a Chinese indigenous× commercial broiler chicken cross","journal":"BMC genomics","citations":0,"role":"Övriga","first_author":"Sheng, Zheya"},{"year":2013,"title":"MAPfastR Package Tutorial","journal":"","citations":0,"role":"Sistaförfattare","first_author":"Nelson, Ronald M"},{"year":2008,"title":"HD_IBD–a new method for tracing allelic inheritance in deep complex pedigrees","journal":"Annals of Human Genetics","citations":0,"role":"Sistaförfattare","first_author":"Besnier, F"},{"year":2009,"title":"Identification of disease suseptibility genes in Hashimoto's thyroiditis using the obese strain of chickens as a model","journal":"Hormone Research","citations":0,"role":"Övriga","first_author":"Sahlqvist, Anna-Stina"},{"year":2008,"title":"Multi-locus epistasis leads to hybrid inferiority in domestic fowl","journal":"Annals of Human Genetics","citations":0,"role":"Förstaförfattare","first_author":"Carlborg, Ö"},{"year":2010,"title":"IDENTIFICATION OF GENES UNDERLYING SYSTEMIC SCLEROSIS IN THE UCD200 CHICKEN","journal":"Clinical and Experimental Rheumatology","citations":0,"role":"Sistaförfattare","first_author":"Kerje, S"},{"year":2010,"title":"Selective sweeps and signatures of selection in the domestication of the chicken","journal":"Animal Genomics for Animal Health International Symposium","citations":0,"role":"Övriga","first_author":"Rubin, Cj"},{"year":2009,"title":"QTL detection and estimation of the epistasis extent for chicken production and resistance to disease traits.","journal":"","citations":0,"role":"Övriga","first_author":"Demeure, Olivier"},{"year":2009,"title":"QTL detection for chicken production and resistance to disease traits","journal":"Genomics for Animal Health: Outlook for the Future","citations":0,"role":"Övriga","first_author":"Demeure, Olivier"},{"year":2013,"title":"The Belgian Shepherd’s tale genome-wide study across 9 dog breeds reveals an association of fructosamine concentration to a locus in Belgian Shepherds","journal":"Canine Feline Genomics conference 2013","citations":0,"role":"Övriga","first_author":"Forsberg, Simon"},{"year":2015,"title":"Standing genetic variation as a major contributor to adaptation in the Virginia chicken lines selection experiment","journal":"Genome biology","citations":0,"role":"Sistaförfattare","first_author":"Sheng, Zheya"},{"year":2012,"title":"Mapping QTL affecting a systemic sclerosis-like disorder in a cross between UCD-200 and red jungle fowl chickens","journal":"Developmental & Comparative Immunology","citations":0,"role":"Övriga","first_author":"Ek, Weronica"},{"year":2018,"title":"A multilocus association analysis method integrating phenotype and expression data reveals multiple novel associations to flowering time variation in wild‐collected Arabidopsis thaliana","journal":"Molecular ecology resources","citations":0,"role":"Sistaförfattare","first_author":"Zan, Yanjun"},{"year":2017,"title":"Explorations of the polygenic genetic architecture of flowering time in the worldwide Arabidopsis thaliana population","journal":"bioRxiv","citations":0,"role":"Sistaförfattare","first_author":"Zan, Yanjun"},{"year":2018,"title":"On the relationship between high-order linkage disequilibrium and epistasis","journal":"G3: Genes, Genomes, Genetics","citations":0,"role":"Sistaförfattare","first_author":"Zan, Yanjun"},{"year":2019,"title":"Genotyping by low-coverage whole-genome sequencing in intercross pedigrees from outbred founders: a cost-efficient approach","journal":"Genetics Selection Evolution","citations":0,"role":"Sistaförfattare","first_author":"Zan, Yanjun"},{"year":2019,"title":"A polygenic genetic architecture of flowering time in the worldwide Arabidopsis thaliana population","journal":"Molecular biology and evolution","citations":0,"role":"Sistaförfattare","first_author":"Zan, Yanjun"},{"year":2007,"title":"INVESTIGATIONS-Genetics of complex traits-A unified model for functional and statistical epistasis and its application in quantitative trait loci analysis","journal":"Genetics","citations":0,"role":"Sistaförfattare","first_author":"Alvarez-Castro, Jose M"},{"year":2019,"title":"Yeast growth responses to environmental perturbations are associated with rewiring of large epistatic networks","journal":"bioRxiv","citations":0,"role":"Sistaförfattare","first_author":"Zan, Yanjun"},{"year":1999,"title":"A paternally expressed QTL affecting skeletal and cardiac muscle mass in pigs maps to the IGF2 locus","journal":"Nature genetics","citations":0,"role":"Övriga","first_author":"Jeon, Jin-Tae"},{"year":2010,"title":"Dissecando a arquitetura genética de características complexas e seu impacto sobre os programas de melhoramento genético: lições aprendidas com o frango Virginia","journal":"Revista Brasileira de Zootecnia","citations":0,"role":"Sistaförfattare","first_author":"Pettersson, Mats E"},{"year":2007,"title":"¿ Para qué es necesario un modelo general y unificado de efectos genéticos?","journal":"SEG 2007: libro de resúmenes","citations":0,"role":"Sistaförfattare","first_author":"Castro, JM Álvarez"},{"year":2013,"title":"Genetic analysis and replication of QTL effects on chicken body weight using a multi-locus introgression line","journal":"Journal of Data Mining in Genomics and Proteomics","citations":0,"role":"Sistaförfattare","first_author":"Ahsan, Muhammad"},{"year":2009,"title":"QTL detection for chicken production and resistance to disease traits","journal":"","citations":0,"role":"Förstaförfattare","first_author":"Carlborg, Örjan"},{"year":2009,"title":"QTL detection and estimation of the epistasis extent for chicken production and resistance to disease traits.","journal":"","citations":0,"role":"Förstaförfattare","first_author":"CARLBORG, O"},{"year":1999,"title":"A paternally expressed QTL affecting skeletal and cardiac muscle mass in pigs maps to the IGF2 locus.","journal":"","citations":0,"role":"Övriga","first_author":"Jeon JinTae, Jeon JinTae"},{"year":2015,"title":"Standing genetic variation as a major contributor to adaptation in the Virginia chicken lines selection experiment.","journal":"","citations":0,"role":"Sistaförfattare","first_author":"Sheng ZheYa, Sheng ZheYa"},{"year":2006,"title":"A new efficient method for QTL mapping in divergent intercrosses incorporating within line variation.","journal":"","citations":0,"role":"Sistaförfattare","first_author":"Rönnegocircle over˜ rd, L"},{"year":2019,"title":"A polygenic genetic architecture of flowering time in the worldwide Arabidopsis thaliana population.","journal":"","citations":0,"role":"Sistaförfattare","first_author":"Zan YanJun, Zan YanJun"},{"year":2019,"title":"Genotyping by low-coverage whole-genome sequencing in intercross pedigrees from outbred founders: a cost-efficient approach.","journal":"","citations":0,"role":"Sistaförfattare","first_author":"Zan YanJun, Zan YanJun"},{"year":2012,"title":"A genome-wide association study using international breeding-evaluation data identifies major loci affecting production traits and stature in the Brown Swiss cattle breed.","journal":"","citations":0,"role":"Sistaförfattare","first_author":"Guo JiaZhong, Guo JiaZhong"},{"year":2018,"title":"On the relationship between high-order linkage disequilibrium and epistasis.","journal":"","citations":0,"role":"Sistaförfattare","first_author":"Zan YanJun, Zan YanJun"},{"year":2013,"title":"Genetic dissection of growth traits in a Chinese indigenous× commercial broiler chicken cross.","journal":"","citations":0,"role":"Övriga","first_author":"Sheng ZheYa, Sheng ZheYa"},{"year":2018,"title":"A multilocus association analysis method integrating phenotype and expression data reveals multiple novel associations to flowering time variation in wild-collected Arabidopsis thaliana.","journal":"","citations":0,"role":"Sistaförfattare","first_author":"Zan YanJun, Zan YanJun"},{"year":2013,"title":"Correction: Genome-Wide Analysis in German Shepherd Dogs Reveals Association of a Locus on CFA 27 with Atopic Dermatitis","journal":"PLoS Genetics","citations":0,"role":"Övriga","first_author":"Tengvall, Katarina"},{"year":2009,"title":"Vitiligo in the Smyth Line chicken is explained by multiple genetic loci: PP47","journal":"Pigment Cell & Melanoma Research","citations":0,"role":"Övriga","first_author":"Kerje, S"},{"year":2012,"title":"Mapping QTL affecting a systemic sclerosis-like disorder in a cross between UCD-200 and red jungle fowl chickens (vol 38, pg 352, 2012)","journal":"DEVELOPMENTAL AND COMPARATIVE IMMUNOLOGY","citations":0,"role":"Övriga","first_author":"Ek, Weronica"}]};
+
+// ── Counter animation ──────────────────────────────────────────────────────
+function animateCounter(el) {
+  const target = parseInt(el.dataset.target);
+  const duration = 1800;
+  const start = performance.now();
+  function step(now) {
+    const progress = Math.min((now - start) / duration, 1);
+    const ease = 1 - Math.pow(1 - progress, 3);
+    el.textContent = Math.round(ease * target).toLocaleString('sv-SE');
+    if (progress < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+// ── Intersection Observer ─────────────────────────────────────────────────
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      e.target.querySelectorAll('[data-target]').forEach(animateCounter);
+      e.target.querySelectorAll('.role-bar').forEach(bar => {
+        bar.style.width = bar.dataset.width + '%';
+      });
+      observer.unobserve(e.target);
+    }
+  });
+}, {threshold: 0.1});
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+// ── Timeline Chart ─────────────────────────────────────────────────────────
+const years = Object.keys(DATA.pubs_per_year).map(Number);
+const pubCounts = years.map(y => DATA.pubs_per_year[y]);
+const citeCounts = years.map(y => DATA.cites_per_year[y] || 0);
+
+const ctx = document.getElementById('timelineChart').getContext('2d');
+new Chart(ctx, {
+  type: 'bar',
+  data: {
+    labels: years,
+    datasets: [
+      {
+        type: 'line',
+        label: 'Citeringar',
+        data: citeCounts,
+        borderColor: '#b8914a',
+        backgroundColor: 'rgba(184,145,74,0.08)',
+        borderWidth: 2,
+        pointRadius: 3,
+        pointBackgroundColor: '#b8914a',
+        fill: true,
+        tension: 0.4,
+        yAxisID: 'y2',
+      },
+      {
+        type: 'bar',
+        label: 'Publikationer',
+        data: pubCounts,
+        backgroundColor: 'rgba(42,107,104,0.6)',
+        borderColor: 'rgba(42,107,104,0.9)',
+        borderWidth: 1,
+        yAxisID: 'y1',
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    interaction: {mode:'index', intersect:false},
+    plugins: {
+      legend: {display:false},
+      tooltip: {
+        backgroundColor: 'rgba(13,17,23,0.95)',
+        borderColor: 'rgba(184,145,74,0.3)',
+        borderWidth: 1,
+        titleColor: '#b8914a',
+        bodyColor: 'rgba(247,243,237,0.75)',
+        padding: 12,
+      }
+    },
+    scales: {
+      x: {
+        grid: {color:'rgba(247,243,237,0.04)'},
+        ticks: {color:'rgba(247,243,237,0.4)', font:{size:11}},
+        border: {color:'rgba(247,243,237,0.1)'}
+      },
+      y1: {
+        type:'linear', position:'left',
+        grid: {color:'rgba(247,243,237,0.04)'},
+        ticks: {color:'rgba(42,107,104,0.7)', font:{size:11}},
+        border: {color:'transparent'},
+        title: {display:true, text:'Publikationer', color:'rgba(42,107,104,0.6)', font:{size:11}}
+      },
+      y2: {
+        type:'linear', position:'right',
+        grid: {drawOnChartArea:false},
+        ticks: {color:'rgba(184,145,74,0.7)', font:{size:11}},
+        border: {color:'transparent'},
+        title: {display:true, text:'Citeringar / år', color:'rgba(184,145,74,0.6)', font:{size:11}}
+      }
+    }
+  }
+});
+
+// ── Top 10 papers ──────────────────────────────────────────────────────────
+const top10 = DATA.publications.slice(0,10);
+const roleClass = {'Förstaförfattare':'first','Sistaförfattare':'last','Övriga':'other'};
+const roleLabel = {'Förstaförfattare':'Förstaförf.','Sistaförfattare':'Sistaförf.','Övriga':'Samförf.'};
+
+const list = document.getElementById('topPapersList');
+top10.forEach((p, i) => {
+  const rc = roleClass[p.role];
+  const rl = roleLabel[p.role];
+  const journal = p.journal.replace(/\s+\d.*/, '');
+  list.innerHTML += `
+    <div class="paper-item">
+      <div class="paper-rank">${String(i+1).padStart(2,'0')}</div>
+      <div>
+        <div class="paper-title">${p.title}</div>
+        <div class="paper-meta"><span class="journal">${journal}</span> · ${p.year}</div>
+      </div>
+      <div class="paper-right">
+        <div class="cite-count">${p.citations.toLocaleString('sv-SE')}</div>
+        <div class="cite-label">citeringar</div>
+        <div style="margin-top:.5rem"><span class="paper-role-tag tag-${rc}">${rl}</span></div>
+      </div>
+    </div>`;
+});
+
+// ── Journals ───────────────────────────────────────────────────────────────
+const journals = [
+  ['Genetics', 10], ['PLoS Genetics', 9], ['G3: Genes, Genomes, Genetics', 7],
+  ['Nature / Nature Genetics / Nat. Rev. Genetics', 7], ['BMC Genomics / BMC Genetics', 8],
+  ['Behavior Genetics', 4], ['Frontiers in Genetics', 4],
+  ['Bioinformatics', 3], ['Molecular Biology and Evolution', 3], ['Heredity / Genome Research', 3]
+];
+const maxJ = journals[0][1];
+const jgrid = document.getElementById('journalGrid');
+journals.forEach(([name, count]) => {
+  const pct = (count/maxJ*100).toFixed(0);
+  jgrid.innerHTML += `
+    <div class="journal-item">
+      <div class="journal-count">${count}</div>
+      <div style="flex:1">
+        <div class="journal-name">${name}</div>
+        <div class="journal-bar"><div style="width:${pct}%;height:100%;background:rgba(184,145,74,0.45)"></div></div>
+      </div>
+    </div>`;
+});
+</script>
+
+<!-- BACK TO MAIN -->
+<a href="steorn-carlborg.html" class="back-home">
+  <svg viewBox="0 0 16 16"><path d="M3.828 7H16v2H3.828l4.95 4.95-1.414 1.414L0 8l7.364-7.364L8.778 2.05z"/></svg>
+  Steorn & Carlborg
+</a>
+
+<script>
+function logout(){
+  sessionStorage.removeItem('sc_auth');
+  window.location.replace('index.html');
+}
+</script>
+</body>
+</html>
