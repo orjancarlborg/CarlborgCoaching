@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+
+<script>
+(function(){
+  if(sessionStorage.getItem('sc_auth')!=='granted'){
+    window.location.replace('login.html?next='+encodeURIComponent(window.location.pathname.split('/').pop()));
+  }
+})();
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vetenskaplig karriär – Örjan Carlborg</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#0d1117; --paper:#f7f3ed; --gold:#b8914a; --gold-lt:#d4aa6a;
+  --teal:#2a6b68; --rust:#8c3a2b; --muted:#6b6560;
+  --line:rgba(184,145,74,0.22); --line-lt:rgba(184,145,74,0.1);
+  --serif:'Cormorant Garamond',Georgia,serif; --sans:'Jost',sans-serif;
+}
+html{scroll-behavior:smooth}
+body{background:var(--ink);color:var(--paper);font-family:var(--sans);font-weight:300;line-height:1.6;overflow-x:hidden}
+
+/* ── NAV ── */
+nav{
+  position:sticky;top:0;z-index:100;
+  display:flex;justify-content:space-between;align-items:center;
+  padding:1.1rem 4rem;
+  background:rgba(13,17,23,0.97);
+  border-bottom:1px solid var(--line);
+}
+.nav-logo{font-family:var(--serif);font-size:1.05rem;letter-spacing:.12em;color:var(--gold);text-decoration:none;text-transform:uppercase}
+nav a.nl{color:rgba(247,243,237,.6);text-decoration:none;font-size:.78rem;letter-spacing:.15em;text-transform:uppercase;transition:color .2s;margin-left:2rem}
+nav a.nl:hover,nav a.nl.active{color:var(--gold)}
+
+/* ── HERO ── */
+.hero{
+  padding:6rem 4rem 5rem;
+  position:relative;overflow:hidden;
+  border-bottom:1px solid var(--line);
+}
+.hero::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 70% 60% at 80% 50%,rgba(42,107,104,.1) 0%,transparent 60%),
+             radial-gradient(ellipse 40% 50% at 5% 90%,rgba(184,145,74,.07) 0%,transparent 50%);
+  pointer-events:none;
+}
+.hero-eyebrow{font-size:.72rem;letter-spacing:.25em;text-transform:uppercase;color:var(--gold);opacity:.8;margin-bottom:.6rem}
+.hero h1{font-family:var(--serif);font-size:clamp(2.8rem,5vw,5rem);font-weight:300;line-height:1.1;margin-bottom:1.2rem}
+.hero h1 em{font-style:italic;color:var(--gold)}
+.hero-lead{font-size:1rem;color:rgba(247,243,237,.6);max-width:58ch;line-height:1.8;margin-bottom:2.5rem}
+.hero-kpis{display:flex;gap:4rem;flex-wrap:wrap}
+.kpi span{display:block}
+.kpi-num{font-family:var(--serif);font-size:2.8rem;font-weight:300;color:var(--gold);line-height:1}
+.kpi-lbl{font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(247,243,237,.4);margin-top:.3rem}
+
+/* ── SECTIONS ── */
+section{padding:5rem 4rem}
+.s-label{font-size:.72rem;letter-spacing:.25em;text-transform:uppercase;color:var(--gold);opacity:.8;margin-bottom:.5rem}
+.s-title{font-family:var(--serif);font-size:clamp(1.8rem,2.5vw,2.6rem);font-weight:300;line-height:1.2;margin-bottom:3rem}
+.s-title em{font-style:italic;color:var(--gold)}
+
+/* ── TIMELINE ── */
+.timeline{position:relative;padding-left:3rem}
+.timeline::before{
+  content:'';position:absolute;left:0;top:.5rem;bottom:.5rem;
+  width:1px;background:linear-gradient(to bottom,transparent,var(--gold) 5%,var(--gold) 95%,transparent);
+  opacity:.3;
+}
+.tl-item{
+  position:relative;margin-bottom:2.5rem;
+  opacity:0;transform:translateX(-20px);
+  transition:opacity .6s ease,transform .6s ease;
+}
+.tl-item.vis{opacity:1;transform:none}
+.tl-dot{
+  position:absolute;left:-3rem;top:.35rem;
+  width:9px;height:9px;border-radius:50%;
+  background:var(--gold);border:2px solid var(--ink);
+  box-shadow:0 0 0 3px rgba(184,145,74,.2);
+  margin-left:-.4rem;
+}
+.tl-dot.major{width:13px;height:13px;box-shadow:0 0 0 4px rgba(184,145,74,.25);margin-left:-.6rem}
+.tl-year{
+  font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--gold);opacity:.7;margin-bottom:.2rem;
+}
+.tl-title{font-family:var(--serif);font-size:1.15rem;font-weight:400;line-height:1.35;margin-bottom:.3rem}
+.tl-body{font-size:.88rem;color:rgba(247,243,237,.55);line-height:1.6;max-width:60ch}
+.tl-tag{
+  display:inline-block;
+  font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;
+  padding:.15rem .55rem;border-radius:1px;margin-top:.5rem;
+  border:1px solid rgba(184,145,74,.3);color:var(--gold-lt);opacity:.8;
+}
+
+/* ── TWO-COL ── */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:2px;background:var(--line)}
+.panel{background:var(--ink);padding:2.5rem}
+.panel-title{font-family:var(--serif);font-size:1.5rem;font-weight:300;color:var(--gold);margin-bottom:1.5rem}
+
+/* Funding bars */
+.fund-list{display:flex;flex-direction:column;gap:1.2rem}
+.fund-item{}
+.fund-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:.35rem}
+.fund-name{font-size:.85rem;color:rgba(247,243,237,.8)}
+.fund-amt{font-family:var(--serif);font-size:1.1rem;color:var(--gold)}
+.fund-bar-track{height:2px;background:rgba(247,243,237,.07)}
+.fund-bar{height:100%;background:linear-gradient(90deg,var(--teal),var(--gold));transition:width 1.5s ease;width:0}
+.fund-detail{font-size:.75rem;color:rgba(247,243,237,.35);margin-top:.2rem}
+
+/* Awards */
+.award-list{display:flex;flex-direction:column;gap:1.5rem}
+.award-item{display:flex;gap:1.2rem;align-items:flex-start}
+.award-year{
+  font-family:var(--serif);font-size:1.2rem;color:var(--gold);
+  min-width:3rem;line-height:1.2;
+}
+.award-body{}
+.award-name{font-size:.9rem;color:var(--paper);line-height:1.3;margin-bottom:.15rem}
+.award-org{font-size:.75rem;color:rgba(247,243,237,.4)}
+
+/* Supervision */
+.phd-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:var(--line);margin-top:0}
+.phd-card{background:var(--ink);padding:1.5rem}
+.phd-name{font-family:var(--serif);font-size:1rem;color:var(--paper);margin-bottom:.2rem}
+.phd-years{font-size:.72rem;letter-spacing:.12em;color:var(--gold);opacity:.7;margin-bottom:.4rem}
+.phd-pos{font-size:.78rem;color:rgba(247,243,237,.45)}
+
+/* Collab grid */
+.collab-list{display:grid;grid-template-columns:repeat(2,1fr);gap:2px;background:var(--line)}
+.collab-card{background:var(--ink);padding:1.5rem 1.8rem}
+.collab-inst{font-family:var(--serif);font-size:1rem;color:var(--gold);margin-bottom:.3rem}
+.collab-detail{font-size:.8rem;color:rgba(247,243,237,.5);line-height:1.5}
+
+/* Research areas */
+.research-areas{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:var(--line);margin-top:0}
+.ra-card{background:var(--ink);padding:2rem}
+.ra-num{font-family:var(--serif);font-size:3rem;font-weight:300;color:rgba(184,145,74,.2);line-height:1;margin-bottom:.5rem}
+.ra-title{font-family:var(--serif);font-size:1.05rem;color:var(--gold);margin-bottom:.6rem}
+.ra-body{font-size:.82rem;color:rgba(247,243,237,.5);line-height:1.6}
+
+/* Divider */
+.divider{border:none;height:1px;background:var(--line);margin:0}
+
+/* CTA strip */
+.cta-strip{
+  padding:3rem 4rem;
+  background:rgba(184,145,74,.04);
+  border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+  display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1.5rem;
+}
+.cta-strip p{font-family:var(--serif);font-size:1.3rem;font-weight:300;color:rgba(247,243,237,.7)}
+.cta-strip p em{font-style:italic;color:var(--gold)}
+.cta-btns{display:flex;gap:1rem;flex-wrap:wrap}
+.btn{
+  display:inline-flex;align-items:center;gap:.5rem;
+  padding:.65rem 1.5rem;font-family:var(--sans);font-size:.75rem;
+  letter-spacing:.14em;text-transform:uppercase;text-decoration:none;
+  transition:all .2s;border-radius:1px;
+}
+.btn-outline{border:1px solid var(--gold);color:var(--gold)}
+.btn-outline:hover{background:var(--gold);color:var(--ink)}
+.btn-solid{background:rgba(42,107,104,.8);color:var(--paper);border:1px solid var(--teal)}
+.btn-solid:hover{background:var(--teal)}
+
+/* Footer */
+footer{
+  padding:2.5rem 4rem;
+  display:flex;justify-content:space-between;align-items:center;
+  border-top:1px solid var(--line);
+}
+footer p{font-size:.75rem;color:rgba(247,243,237,.3);letter-spacing:.08em}
+
+/* Fade-in */
+.fi{opacity:0;transform:translateY(20px);transition:opacity .7s ease,transform .7s ease}
+.fi.vis{opacity:1;transform:none}
+
+@media(max-width:900px){
+  nav,section,.hero,.cta-strip,footer{padding-left:1.5rem;padding-right:1.5rem}
+  .two-col,.phd-grid,.collab-list,.research-areas{grid-template-columns:1fr}
+  .hero-kpis{gap:2rem}
+  .timeline{padding-left:2rem}
+}
+
+/* ── YH EDUCATION ── */
+.yh-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:2px;background:var(--line);
+  margin-bottom:2.5rem;
+}
+.yh-card{
+  background:var(--ink);
+  padding:1.4rem 1.5rem;
+  display:flex;flex-direction:column;gap:.3rem;
+  position:relative;
+  transition:background .2s;
+}
+.yh-card:hover{background:rgba(184,145,74,.04)}
+.yh-card.active{background:rgba(42,107,104,.05)}
+.yh-check{
+  font-size:.85rem;color:var(--teal);opacity:.7;
+  position:absolute;top:.8rem;right:.8rem;
+}
+.yh-check.act{color:var(--gold);opacity:.8}
+.yh-name{font-size:.88rem;color:var(--paper);line-height:1.35;padding-right:1.5rem}
+.yh-meta{font-size:.72rem;color:rgba(247,243,237,.35);letter-spacing:.06em}
+.yh-grade{
+  display:inline-block;
+  font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;
+  padding:.15rem .5rem;border-radius:1px;margin-top:.4rem;
+  align-self:flex-start;
+}
+.yh-grade.vg{background:rgba(42,107,104,.2);color:#5bbfba;border:1px solid rgba(42,107,104,.4)}
+.yh-grade.pend{background:rgba(184,145,74,.1);color:var(--gold-lt);border:1px solid rgba(184,145,74,.25)}
+.yh-grade.prog{background:rgba(107,101,96,.15);color:var(--muted);border:1px solid rgba(107,101,96,.3);animation:pulse 2s infinite}
+
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+
+.yh-stats{
+  display:flex;gap:4rem;flex-wrap:wrap;
+  padding:2rem 0;
+  border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+  margin-bottom:2.5rem;
+}
+.yh-stat{}
+.yh-stat-num{
+  display:block;
+  font-family:var(--serif);font-size:2.8rem;font-weight:300;
+  color:var(--gold);line-height:1;
+}
+.yh-stat-lbl{
+  display:block;
+  font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;
+  color:rgba(247,243,237,.4);margin-top:.3rem;
+}
+
+.value-box{margin-top:0}
+.value-box-inner{
+  border:1px solid var(--line);
+  padding:2.5rem;
+  position:relative;
+  background:rgba(184,145,74,.03);
+}
+.value-box-inner::before{
+  content:'';
+  position:absolute;left:0;top:0;bottom:0;
+  width:3px;background:linear-gradient(to bottom,var(--teal),var(--gold));
+}
+.vb-label{
+  font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:.8rem;
+}
+.vb-text{
+  font-family:var(--serif);font-size:1.15rem;font-weight:300;
+  color:rgba(247,243,237,.7);line-height:1.75;max-width:72ch;
+}
+.vb-text em{font-style:italic;color:var(--gold)}
+
+@media(max-width:900px){
+  .yh-grid{grid-template-columns:repeat(2,1fr)}
+  .yh-stats{gap:2rem}
+}
+@media(max-width:500px){
+  .yh-grid{grid-template-columns:1fr}
+}
+
+/* ── SPORTS SECTION ── */
+.sports-hero{
+  display:grid;grid-template-columns:1fr 1fr;gap:2px;
+  background:var(--line);margin-bottom:3rem;
+}
+.sport-panel{background:var(--ink);padding:2.5rem}
+.sport-stat-row{display:flex;gap:3rem;flex-wrap:wrap;margin-top:1.5rem}
+.sport-stat .s-num{
+  font-family:var(--serif);font-size:2.5rem;color:var(--gold);
+  font-weight:300;line-height:1;display:block;
+}
+.sport-stat .s-lbl{font-size:.65rem;letter-spacing:.16em;text-transform:uppercase;color:rgba(247,243,237,.4);margin-top:.2rem;display:block}
+
+.athletes-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:2px;background:var(--line);margin-bottom:3rem}
+.athlete-card{
+  background:var(--ink);padding:2rem 2.2rem;
+  transition:background .2s;
+}
+.athlete-card:hover{background:rgba(184,145,74,.04)}
+.athlete-flag{font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);opacity:.7;margin-bottom:.4rem}
+.athlete-name{font-family:var(--serif);font-size:1.5rem;font-weight:300;color:var(--paper);margin-bottom:.2rem}
+.athlete-event{font-size:.78rem;color:rgba(247,243,237,.4);letter-spacing:.08em;margin-bottom:1rem}
+.athlete-achievements{display:flex;flex-direction:column;gap:.5rem}
+.ach-item{
+  display:flex;align-items:flex-start;gap:.7rem;
+  font-size:.83rem;color:rgba(247,243,237,.65);line-height:1.45;
+}
+.ach-dot{
+  width:5px;height:5px;border-radius:50%;background:var(--gold);
+  opacity:.5;flex-shrink:0;margin-top:.45rem;
+}
+.athlete-pb{
+  margin-top:1rem;padding-top:1rem;border-top:1px solid rgba(184,145,74,.12);
+  display:flex;gap:1.5rem;
+}
+.pb-item .pb-val{font-family:var(--serif);font-size:1.3rem;color:var(--gold-lt);font-weight:300}
+.pb-item .pb-lbl{font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(247,243,237,.3)}
+
+.cert-row{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:2px;
+  background:var(--line);margin-bottom:3rem;
+}
+.cert-card{
+  background:var(--ink);padding:1.6rem 1.8rem;
+}
+.cert-org{font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);opacity:.7;margin-bottom:.4rem}
+.cert-name{font-size:.9rem;color:rgba(247,243,237,.8);line-height:1.4}
+
+.coaching-phi{
+  border:1px solid var(--line);padding:2.5rem;
+  background:rgba(42,107,104,.04);
+  position:relative;
+}
+.coaching-phi::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;
+  width:3px;background:linear-gradient(to bottom,var(--teal),rgba(184,145,74,.5));
+}
+.phi-quote{
+  font-family:var(--serif);font-style:italic;
+  font-size:1.25rem;font-weight:300;
+  color:rgba(247,243,237,.75);line-height:1.7;
+  max-width:70ch;margin-bottom:1rem;
+}
+.phi-quote em{font-style:normal;color:var(--gold)}
+.phi-source{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(247,243,237,.35)}
+
+@media(max-width:900px){
+  .sports-hero,.athletes-grid,.cert-row{grid-template-columns:1fr}
+}
+
+/* ── BACK TO MAIN BUTTON ── */
+.back-home{
+  position:fixed;
+  bottom:2rem;right:2rem;
+  z-index:500;
+  display:flex;align-items:center;gap:.6rem;
+  padding:.65rem 1.2rem;
+  background:rgba(13,17,23,.88);
+  backdrop-filter:blur(10px);
+  border:1px solid rgba(184,145,74,.3);
+  color:rgba(242,237,230,.7);
+  font-family:var(--sans);font-size:.68rem;
+  letter-spacing:.14em;text-transform:uppercase;
+  text-decoration:none;
+  transition:all .25s;
+  box-shadow:0 4px 20px rgba(0,0,0,.3);
+}
+.back-home:hover{
+  border-color:var(--gold),#b8914a);
+  color:var(--gold),#b8914a);
+  background:rgba(13,17,23,.96);
+}
+.back-home svg{
+  width:12px;height:12px;fill:currentColor;flex-shrink:0;
+}
+
+/* ── LOGOUT LINK ── */
+.logout-link{
+  font-size:.65rem;letter-spacing:.14em;text-transform:uppercase;
+  color:rgba(240,245,242,.3);text-decoration:none;
+  transition:color .2s;cursor:pointer;
+}
+.logout-link:hover{color:#e07070}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="vetenskaplig-profil.html" class="nav-logo">Carlborg Consulting</a>
+  <div>
+    <a href="vetenskaplig-profil.html" class="nl">Profil</a>
+    <a href="#karriar" class="nl active">Karriär</a>
+    <a href="#idrottsledarskap" class="nl">Friidrott</a><a href="#redovisning" class="nl">Redovisning</a><a href="publikationer.html" class="nl">Publikationer</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <p class="hero-eyebrow">Vetenskaplig karriär · 1998–2022</p>
+  <h1>Örjan Carlborg —<br><em>Computational Genetics</em></h1>
+  <p class="hero-lead">
+    Professor i Computational Genomics vid Uppsala Universitet. Pionjär inom
+    kvantitativ genetik och epistasis — forskning som utmanat det rådande
+    additivitetsparadigmet och öppnat nya förståelseramar för komplexa ärftliga drag.
+  </p>
+  <div class="hero-kpis">
+    <div class="kpi"><span class="kpi-num">150</span><span class="kpi-lbl">Publikationer</span></div>
+    <div class="kpi"><span class="kpi-num">10 888</span><span class="kpi-lbl">Citeringar</span></div>
+    <div class="kpi"><span class="kpi-num">44</span><span class="kpi-lbl">h-index</span></div>
+    <div class="kpi"><span class="kpi-num">~95</span><span class="kpi-lbl">MSEK i extern finansiering</span></div>
+    <div class="kpi"><span class="kpi-num">6</span><span class="kpi-lbl">Disputerade doktorander</span></div>
+  </div>
+</div>
+
+<!-- RESEARCH AREAS -->
+<section>
+  <p class="s-label">Forskningsprofil</p>
+  <h2 class="s-title">Tre <em>kärnområden</em></h2>
+  <div class="research-areas fi">
+    <div class="ra-card">
+      <div class="ra-num">01</div>
+      <div class="ra-title">Epistasis & komplex genetik</div>
+      <p class="ra-body">Utveckling av teori, statistiska metoder och beräkningsverktyg för att identifiera och modellera genetiska interaktioner i komplexa drag. Visade att epistasis är en central mekanism bakom långsiktig selektionsrespons och fenotypisk plasticitet.</p>
+    </div>
+    <div class="ra-card">
+      <div class="ra-num">02</div>
+      <div class="ra-title">Genomik & selektionsanalys</div>
+      <p class="ra-body">Helgenomsekvensering och GWAS-analyser i domesticerade djur — kyckling, svin, hund, nötkreatur, räv — för att förstå anpassningens genomiska fotavtryck. Ledde arbete som publicerades i Nature, Nature Genetics och PNAS.</p>
+    </div>
+    <div class="ra-card">
+      <div class="ra-num">03</div>
+      <div class="ra-title">Variationskontrollerande gener</div>
+      <p class="ra-body">Identifiering av genetiska loci som reglerar fenotypisk varians snarare än medelvärdet — ett nytt paradigm som kopplar epistasis till genetisk robusthet och kapaciterande variation i växter, svamp och djur.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- CAREER TIMELINE -->
+<section id="karriar">
+  <p class="s-label">Befattningar & milstolpar</p>
+  <h2 class="s-title">En <em>karriärtidslinje</em></h2>
+  <div class="timeline" id="timeline"></div>
+</section>
+
+<hr class="divider">
+
+<!-- AWARDS + FUNDING -->
+<section>
+  <p class="s-label">Finansiering & utmärkelser</p>
+  <h2 class="s-title">Extern <em>finansiering</em> & erkännanden</h2>
+  <div class="two-col fi">
+    <div class="panel">
+      <div class="panel-title">Viktigaste finansieringskällor</div>
+      <div class="fund-list">
+        <div class="fund-item">
+          <div class="fund-head"><span class="fund-name">SSF – Future Research Leader</span><span class="fund-amt">8,5 MSEK</span></div>
+          <div class="fund-bar-track"><div class="fund-bar" data-w="100"></div></div>
+          <div class="fund-detail">2008–2013 · Ensam sökande · Interdisciplinary Computational Genetics Leadership</div>
+        </div>
+        <div class="fund-item">
+          <div class="fund-head"><span class="fund-name">ESF EURYI Award</span><span class="fund-amt">1,13 MEUR</span></div>
+          <div class="fund-bar-track"><div class="fund-bar" data-w="88"></div></div>
+          <div class="fund-detail">2006 · Ensam sökande · European Young Investigator Award</div>
+        </div>
+        <div class="fund-item">
+          <div class="fund-head"><span class="fund-name">Vetenskapsrådet (NT+M) × 4</span><span class="fund-amt">~11 MSEK</span></div>
+          <div class="fund-bar-track"><div class="fund-bar" data-w="72"></div></div>
+          <div class="fund-detail">2006–2021 · PI · Genetisk arkitektur & kvantitativa drag</div>
+        </div>
+        <div class="fund-item">
+          <div class="fund-head"><span class="fund-name">FORMAS × 5</span><span class="fund-amt">~17 MSEK</span></div>
+          <div class="fund-bar-track"><div class="fund-bar" data-w="80"></div></div>
+          <div class="fund-detail">2005–2021 · PI · Genetiska modeller & husdjursgenomik</div>
+        </div>
+        <div class="fund-item">
+          <div class="fund-head"><span class="fund-name">SSF Centre of Excellence (co-PI)</span><span class="fund-amt">35 MSEK</span></div>
+          <div class="fund-bar-track"><div class="fund-bar" data-w="95"></div></div>
+          <div class="fund-detail">2006–2010 · PI: Leif Andersson · Centrum för funktionell genetik</div>
+        </div>
+        <div class="fund-item">
+          <div class="fund-head"><span class="fund-name">EU H2020, NIH, Research Council Norway</span><span class="fund-amt">~6 MSEK</span></div>
+          <div class="fund-bar-track"><div class="fund-bar" data-w="45"></div></div>
+          <div class="fund-detail">Internationella samarbetsprojekt 2007–2021</div>
+        </div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">Utmärkelser & erkännanden</div>
+      <div class="award-list">
+        <div class="award-item">
+          <div class="award-year">2002</div>
+          <div class="award-body">
+            <div class="award-name">KSLA-priset för framstående avhandling</div>
+            <div class="award-org">Kungl. Skogs- och Lantbruksakademien</div>
+          </div>
+        </div>
+        <div class="award-item">
+          <div class="award-year">2006</div>
+          <div class="award-body">
+            <div class="award-name">EURYI Award — European Young Investigator</div>
+            <div class="award-org">European Science Foundation · 1 av 2 svenska mottagare</div>
+          </div>
+        </div>
+        <div class="award-item">
+          <div class="award-year">2007</div>
+          <div class="award-body">
+            <div class="award-name">Utvärdering: "World Class" & "World Leading"</div>
+            <div class="award-org">Uppsala University KoF07 + SLU KoN 2009 · Högsta möjliga rating</div>
+          </div>
+        </div>
+        <div class="award-item">
+          <div class="award-year">2008</div>
+          <div class="award-body">
+            <div class="award-name">Future Research Leader & WCN Star</div>
+            <div class="award-org">Swedish Foundation for Strategic Research</div>
+          </div>
+        </div>
+        <div class="award-item">
+          <div class="award-year">2011</div>
+          <div class="award-body">
+            <div class="award-name">Ledamot, Sveriges Unga Akademi</div>
+            <div class="award-org">2011–2016</div>
+          </div>
+        </div>
+        <div class="award-item">
+          <div class="award-year">2012</div>
+          <div class="award-body">
+            <div class="award-name">Balfour-föreläsningen, ICQG4</div>
+            <div class="award-org">The Genetics Society UK · Edinburgh, ~1 000 åhörare</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- PhD STUDENTS -->
+<section>
+  <p class="s-label">Handledning</p>
+  <h2 class="s-title">Disputerade <em>doktorander</em></h2>
+  <div class="phd-grid fi">
+    <div class="phd-card">
+      <div class="phd-name">François Besnier</div>
+      <div class="phd-years">2005–2009 · Uppsala</div>
+      <div class="phd-pos">→ Researcher/Post-doc, University of Bergen</div>
+    </div>
+    <div class="phd-card">
+      <div class="phd-name">Weronica Ek</div>
+      <div class="phd-years">2007–2011 · SLU</div>
+      <div class="phd-pos">→ Researcher, Uppsala University</div>
+    </div>
+    <div class="phd-card">
+      <div class="phd-name">Xia Shen</div>
+      <div class="phd-years">2008–2012 · Uppsala</div>
+      <div class="phd-pos">→ Chancellor's Fellow, University of Edinburgh</div>
+    </div>
+    <div class="phd-card">
+      <div class="phd-name">Muhammad Ahsan</div>
+      <div class="phd-years">2010–2013 · SLU</div>
+      <div class="phd-pos">→ Post-doc, Uppsala University</div>
+    </div>
+    <div class="phd-card">
+      <div class="phd-name">Simon Forsberg</div>
+      <div class="phd-years">2013–2017 · Uppsala/SLU</div>
+      <div class="phd-pos">→ Post-doc, Nature Genetics 2017</div>
+    </div>
+    <div class="phd-card">
+      <div class="phd-name">Yanjun Zan</div>
+      <div class="phd-years">2014–2018 · Uppsala</div>
+      <div class="phd-pos">→ Post-doc, Mol. Biol. Evolution</div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- INTERNATIONAL COLLABORATIONS -->
+<section>
+  <p class="s-label">Internationella samarbeten</p>
+  <h2 class="s-title">Globalt <em>forskningsnätverk</em></h2>
+  <div class="collab-list fi">
+    <div class="collab-card">
+      <div class="collab-inst">Max Planck Institute / Leipzig & Stockholm</div>
+      <div class="collab-detail">Svante Pääbo & Frank Albert · Tamhetsgenetik hos räv och råtta · Publ. Genetics 2009, Heredity 2011, Genetics 2014</div>
+    </div>
+    <div class="collab-card">
+      <div class="collab-inst">UCLA / Leonid Kruglyak Lab</div>
+      <div class="collab-detail">Epistatiska interaktioner och fenotypisk variation i jäst · Nature Genetics 2017</div>
+    </div>
+    <div class="collab-card">
+      <div class="collab-inst">Virginia Tech / Paul Siegel Lab</div>
+      <div class="collab-detail">Virginia-kycklinglinjer – >15 gemensamma publikationer 2006– · Grundval för majoriteten av nationella anslag</div>
+    </div>
+    <div class="collab-card">
+      <div class="collab-inst">University of Aberdeen / David Salt Lab</div>
+      <div class="collab-detail">Genetisk reglering av jonomer i Arabidopsis thaliana · PLoS Genetics 2014 + NIH-finansierat samarbete</div>
+    </div>
+    <div class="collab-card">
+      <div class="collab-inst">University of Washington / Christine Queitsch</div>
+      <div class="collab-detail">Genetisk robusthet och epistatisk kanalisering i Arabidopsis · PLoS Genetics 2015</div>
+    </div>
+    <div class="collab-card">
+      <div class="collab-inst">University of Illinois / Anna Kukekova</div>
+      <div class="collab-detail">Beteendegenetik hos silverräv · Behavioral Genetics 2016 · NIH RO1 2016–2020</div>
+    </div>
+  </div>
+</section>
+
+
+<hr class="divider">
+
+
+<hr class="divider">
+
+<!-- SPORTS COACHING -->
+<section id="idrottsledarskap">
+  <p class="s-label">Idrottsledarskap · 2016–2025</p>
+  <h2 class="s-title">Friidrottscoach — <em>från talang till elit</em></h2>
+
+  <div class="sports-hero fi">
+    <div class="sport-panel">
+      <p style="font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:.6rem;opacity:.8">
+        Ideell tränare & coach · Upsala IF Friidrott
+      </p>
+      <p style="font-family:var(--serif);font-size:1.2rem;font-weight:300;color:rgba(247,243,237,.75);line-height:1.7;max-width:50ch">
+        Sedan 2016 har Örjan coacht ambitiösa friidrottare — från ungdomsnivå till 
+        svenska mästerskap och internationell representation — med ett ledarskap 
+        grundat i individens inneboende potential.
+      </p>
+      <div class="sport-stat-row">
+        <div class="sport-stat">
+          <span class="s-num">9</span>
+          <span class="s-lbl">År som coach</span>
+        </div>
+        <div class="sport-stat">
+          <span class="s-num">SM</span>
+          <span class="s-lbl">Medaljörer</span>
+        </div>
+        <div class="sport-stat">
+          <span class="s-num">LS</span>
+          <span class="s-lbl">Landslagsmän</span>
+        </div>
+      </div>
+    </div>
+    <div class="sport-panel" style="background:rgba(42,107,104,.05)">
+      <p style="font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:.8rem;opacity:.8">Utmärkelser & roller</p>
+      <div style="display:flex;flex-direction:column;gap:.8rem">
+        <div style="display:flex;gap:.8rem;align-items:flex-start">
+          <span style="color:var(--gold);font-size:1rem;line-height:1.4">★</span>
+          <div>
+            <div style="font-size:.88rem;color:var(--paper)">Årets ledare</div>
+            <div style="font-size:.72rem;color:rgba(247,243,237,.4)">Upplands Friidrottsförbund</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:.8rem;align-items:flex-start;padding-top:.8rem;border-top:1px solid rgba(184,145,74,.1)">
+          <span style="color:var(--teal);font-size:1rem;line-height:1.4">◈</span>
+          <div>
+            <div style="font-size:.88rem;color:var(--paper)">Instruktör, Friidrottsgymnasiet Uppsala</div>
+            <div style="font-size:.72rem;color:rgba(247,243,237,.4)">Sprint & häck · ~15% av heltid</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:.8rem;align-items:flex-start;padding-top:.8rem;border-top:1px solid rgba(184,145,74,.1)">
+          <span style="color:var(--muted);font-size:1rem;line-height:1.4">◉</span>
+          <div>
+            <div style="font-size:.88rem;color:var(--paper)">Tävlingsledare & funktionär</div>
+            <div style="font-size:.72rem;color:rgba(247,243,237,.4)">Lokala, nationella & internationella tävlingar · Lagledare nationella mästerskap</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:.8rem;align-items:flex-start;padding-top:.8rem;border-top:1px solid rgba(184,145,74,.1)">
+          <span style="color:var(--muted);font-size:1rem;line-height:1.4">◈</span>
+          <div>
+            <div style="font-size:.88rem;color:var(--paper)">Rekrytering & utbildning av klubbtränare</div>
+            <div style="font-size:.72rem;color:rgba(247,243,237,.4)">Mentorskap för nya tränare inom Upsala IF</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Elite athletes -->
+  <p class="s-label" style="margin-bottom:1rem">Exempel på coachade elitidrottare</p>
+  <div class="athletes-grid fi">
+    <div class="athlete-card">
+      <div class="athlete-flag">Sverige · Sprint</div>
+      <div class="athlete-name">Erik Hagberg</div>
+      <div class="athlete-event">100m · 60m · 4×100m</div>
+      <div class="athlete-achievements">
+        <div class="ach-item"><div class="ach-dot"></div><span>SM-medaljer, ute- och inomhussäsong</span></div>
+        <div class="ach-item"><div class="ach-dot"></div><span>Landslagsrepresentant — Nordiska mästerskap, Finnkampen</span></div>
+        <div class="ach-item"><div class="ach-dot"></div><span>Representerade Sverige i Junioreuropamästerskap (JEM)</span></div>
+      </div>
+      <div class="athlete-pb">
+        <div class="pb-item"><div class="pb-val">10.15</div><div class="pb-lbl">100m PB</div></div>
+        <div class="pb-item"><div class="pb-val">6.66</div><div class="pb-lbl">60m PB</div></div>
+        <div class="pb-item"><div class="pb-val">39.27</div><div class="pb-lbl">4×100m</div></div>
+      </div>
+    </div>
+    <div class="athlete-card">
+      <div class="athlete-flag">Sverige · Sprint</div>
+      <div class="athlete-name">Simon Plesse</div>
+      <div class="athlete-event">100m · 60m · Längdhopp · 4×100m</div>
+      <div class="athlete-achievements">
+        <div class="ach-item"><div class="ach-dot"></div><span>SM-silver 100m utomhus (2023) — 10.27 i semifinalen, åttonde snabbaste Swede genom tiderna</span></div>
+        <div class="ach-item"><div class="ach-dot"></div><span>Landslagsuppdrag — Nordiska mästerskap, nationella mästerskap</span></div>
+        <div class="ach-item"><div class="ach-dot"></div><span>60m PB 6.77 — tidigt svenskt årsbästa 2024</span></div>
+      </div>
+      <div class="athlete-pb">
+        <div class="pb-item"><div class="pb-val">10.27</div><div class="pb-lbl">100m PB</div></div>
+        <div class="pb-item"><div class="pb-val">6.77</div><div class="pb-lbl">60m PB</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Certifications -->
+  <p class="s-label" style="margin-bottom:1rem">Tränarutbildningar & certifieringar</p>
+  <div class="cert-row fi">
+    <div class="cert-card">
+      <div class="cert-org">ALTIS · Phoenix, USA</div>
+      <div class="cert-name">Mentorship Phase III: Mastery — den högsta nivån i världens ledande tränarprogram för sprint & hopp</div>
+    </div>
+    <div class="cert-card">
+      <div class="cert-org">SFIF · Svenska Friidrottsförbundet</div>
+      <div class="cert-name">Löpledare / Löptränare · Certified Coach — inriktning sprint och häck · 14–17 år</div>
+    </div>
+    <div class="cert-card">
+      <div class="cert-org">Upsala IF Friidrott</div>
+      <div class="cert-name">Grenledarutbildning hopp · 10–12 & 12–14 år · Intern mentorskapsutbildning</div>
+    </div>
+  </div>
+
+  <!-- Philosophy -->
+  <div class="coaching-phi fi">
+    <p class="phi-quote">
+      "Mitt ledarskap grundar sig i en <em>humanistisk människosyn</em> — 
+      jag brinner för att nå högt uppsatta mål genom att identifiera och 
+      utveckla individers <em>inneboende potential</em>. 
+      Jag motiveras av processen att leda."
+    </p>
+    <div class="phi-source">Örjan Carlborg · Årets ledare, Upplands Friidrottsförbund</div>
+  </div>
+</section>
+
+<!-- YH EDUCATION -->
+<section id="redovisning">
+  <p class="s-label">Ekonomisk kompetens · 2023–2024</p>
+  <h2 class="s-title">Redovisningsekonom — <em>YH-examen</em></h2>
+  <p style="color:rgba(247,243,237,.55);font-size:.95rem;max-width:65ch;margin-bottom:3rem;line-height:1.8">
+    Parallellt med övergången till konsultverksamhet genomförde Örjan en YH-utbildning 
+    till Redovisningsekonom vid Iterum (2023–2024) — samtliga avslutade kurser med 
+    betyget <strong style="color:var(--gold)">Väl Godkänt</strong>. 
+    Kombinationen vetenskaplig analytisk förmåga och ekonomisk fackkunskap skapar 
+    en unik kompetens för datadriven affärsrådgivning.
+  </p>
+
+  <!-- Course grid -->
+  <div class="yh-grid fi">
+    <div class="yh-card done">
+      <div class="yh-check">✓</div>
+      <div class="yh-name">Löpande bokföring</div>
+      <div class="yh-meta">40 p · 2023</div>
+      <div class="yh-grade vg">VG</div>
+    </div>
+    <div class="yh-card done">
+      <div class="yh-check">✓</div>
+      <div class="yh-name">Månatlig lönehantering</div>
+      <div class="yh-meta">15 p · 2023</div>
+      <div class="yh-grade vg">VG</div>
+    </div>
+    <div class="yh-card done">
+      <div class="yh-check">✓</div>
+      <div class="yh-name">Planering inför årsbokslut</div>
+      <div class="yh-meta">15 p · 2023</div>
+      <div class="yh-grade vg">VG</div>
+    </div>
+    <div class="yh-card done">
+      <div class="yh-check">✓</div>
+      <div class="yh-name">Ekonomistyrning & rapportering</div>
+      <div class="yh-meta">20 p · 2023</div>
+      <div class="yh-grade vg">VG</div>
+    </div>
+    <div class="yh-card done">
+      <div class="yh-check">✓</div>
+      <div class="yh-name">Praktiskt bokslutsarbete</div>
+      <div class="yh-meta">40 p · 2023</div>
+      <div class="yh-grade vg">VG</div>
+    </div>
+    <div class="yh-card done">
+      <div class="yh-check">✓</div>
+      <div class="yh-name">Beskattningsrätt</div>
+      <div class="yh-meta">50 p · 2023–2024</div>
+      <div class="yh-grade vg">VG</div>
+    </div>
+    <div class="yh-card done">
+      <div class="yh-check">✓</div>
+      <div class="yh-name">LIA 1 – Praktisk redovisning</div>
+      <div class="yh-meta">40 p · 2023</div>
+      <div class="yh-grade pend">LIA</div>
+    </div>
+    <div class="yh-card done">
+      <div class="yh-check">✓</div>
+      <div class="yh-name">Fördjupning redovisning</div>
+      <div class="yh-meta">30 p · 2024</div>
+      <div class="yh-grade vg">VG</div>
+    </div>
+    <div class="yh-card done">
+      <div class="yh-check">✓</div>
+      <div class="yh-name">Mervärdesskatt</div>
+      <div class="yh-meta">20 p · 2024</div>
+      <div class="yh-grade pend">Avsl.</div>
+    </div>
+    <div class="yh-card done">
+      <div class="yh-check">✓</div>
+      <div class="yh-name">Arbetsplatsförlagt examensarbete</div>
+      <div class="yh-meta">40 p · 2024</div>
+      <div class="yh-grade vg">VG</div>
+    </div>
+    <div class="yh-card active">
+      <div class="yh-check act">◷</div>
+      <div class="yh-name">Handelsrätt</div>
+      <div class="yh-meta">30 p · 2024</div>
+      <div class="yh-grade prog">Pågår</div>
+    </div>
+    <div class="yh-card active">
+      <div class="yh-check act">◷</div>
+      <div class="yh-name">LIA 2 – Praktisk redovisning</div>
+      <div class="yh-meta">60 p · 2024</div>
+      <div class="yh-grade prog">Pågår</div>
+    </div>
+  </div>
+
+  <!-- Stats row -->
+  <div class="yh-stats fi">
+    <div class="yh-stat">
+      <span class="yh-stat-num">400</span>
+      <span class="yh-stat-lbl">Yrkeshögskolepoäng totalt</span>
+    </div>
+    <div class="yh-stat">
+      <span class="yh-stat-num">VG</span>
+      <span class="yh-stat-lbl">Snittbetyg — samtliga bedömda kurser</span>
+    </div>
+    <div class="yh-stat">
+      <span class="yh-stat-num">2</span>
+      <span class="yh-stat-lbl">Återstående kurser (avslutas 2024)</span>
+    </div>
+  </div>
+
+  <!-- Unique value box -->
+  <div class="value-box fi">
+    <div class="value-box-inner">
+      <p class="vb-label">Unik kompetenskombination</p>
+      <p class="vb-text">
+        Förmågan att kombinera djup kvantitativ-analytisk kompetens från 
+        en forskarkarriär i världsklass med praktisk ekonomisk och juridisk 
+        fackkunskap gör det möjligt att erbjuda rådgivning i skärningspunkten 
+        mellan <em>datavetenskap, genomik och affärsekonomi</em> — en kombination 
+        mycket sällan tillgänglig hos en enskild konsult.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- CTA STRIP -->
+<div class="cta-strip">
+  <p>Från grundforskning till<br><em>tillämpade lösningar</em> i genomik</p>
+  <div class="cta-btns">
+    <a href="vetenskaplig-profil.html" class="btn btn-outline">← Tillbaka till profil</a>
+    <a href="publikationer.html" class="btn btn-solid">Alla publikationer →</a>
+  </div>
+</div>
+
+<footer>
+  <p>Örjan Carlborg · Carlborg Consulting · Vetenskaplig karriär 1998–2022</p>
+  <p>ORCID 0000-0002-2722-5264</p>
+</footer>
+
+<script>
+// ── Timeline data ─────────────────────────────────────────────────────────
+const events = [
+  {year:'1998',title:'Civilingenjör & doktorandstart',body:'MSc Husdjursagronom, SLU. Påbörjar forskarutbildning vid institutionen för Husdjursgenetik.',tags:['Utbildning'],major:false},
+  {year:'1999',title:'Nat Genet – första Nature-publikation',body:'Medforfatter på "A paternally expressed QTL…maps to the IGF2 locus" – visar för- äldrakörning av genetiska effekter i svin.',tags:['Genombrott'],major:true},
+  {year:'2000',title:'Genetik-algoritm för epistasis kartläggning',body:'Publicerar metod i Genetics för att simultant kartlägga multipla interagerande QTL – grunden för framtida epistatiska analyser.',tags:['Metodik'],major:true},
+  {year:'2002',title:'Doktorsexamen + KSLA-priset',body:'Disputerar med avhandlingen "New methods for mapping Quantitative Trait Loci" vid SLU. Tilldelas KSLA:s pris för framstående avhandling.',tags:['Examen','Utmärkelse'],major:true},
+  {year:'2002',title:'Postdok, Roslin Institute, Edinburgh',body:'2-årig postdok med Chris Haley. Fördjupad analys av epistasis i experimentella korsningsmodeller för kyckling och mus.',tags:['Befattning'],major:false},
+  {year:'2004',title:'Nature Reviews Genetics – epistasis-översikt',body:'"Epistasis: too often neglected in complex trait studies?" — 1 212 citeringar — en av de mest citerade artiklarna i fältet.',tags:['Genombrott'],major:true},
+  {year:'2004',title:'Gruppledare, LCB Uppsala',body:'Startar egen forskargrupp vid Linnaeus Centre for Bioinformatics, Uppsala Universitet.',tags:['Befattning'],major:false},
+  {year:'2005',title:'Docentkompetens, Uppsala Universitet',body:'Docent i Bioinformatik.',tags:['Meritering'],major:false},
+  {year:'2006',title:'EURYI Award – europeisk toppforskare',body:'1,13 MEUR från European Science Foundation som ensam sökande. Rikstäckande pressrelease och TV-intervju.',tags:['Utmärkelse','Finansiering'],major:true},
+  {year:'2006',title:'Nature Genetics – Epistasis & selektion',body:'"Epistasis and the release of genetic variation during long-term selection" – 360 citeringar – visar att kapaciterande epistasis frigör stående genetisk variation.',tags:['Genombrott'],major:true},
+  {year:'2008',title:'Professor & Future Research Leader vid SLU',body:'Befordras till professor i Beräkningsbaserad genetik vid SLU. Tilldelas SSF Future Research Leader (8,5 MSEK) samt WCN Star 2008.',tags:['Befattning','Utmärkelse'],major:true},
+  {year:'2009',title:'Utvärdering "World Leading" SLU KoN',body:'Gruppen utvärderas som World Leading – högsta möjliga betyg i alla kategorier.',tags:['Erkännande'],major:false},
+  {year:'2010',title:'Nature – Kycklingens domesticering',body:'"Whole-genome resequencing reveals loci under selection during chicken domestication" – 1 253 citeringar – landmark-studie om genomik och domesticering.',tags:['Genombrott'],major:true},
+  {year:'2011',title:'Ledamot, Sveriges Unga Akademi',body:'Invald som ledamot 2011–2016.',tags:['Erkännande'],major:false},
+  {year:'2012',title:'Balfour-föreläsningen, ICQG4',body:'Inbjuden att hålla den prestigefulla Balfour-föreläsningen vid International Conference on Quantitative Genetics i Edinburgh, ~1 000 åhörare.',tags:['Utmärkelse'],major:true},
+  {year:'2012',title:'PLoS Genetics – Variationsstyrande gener',body:'"Inheritance beyond plain heritability: variance-controlling genes in Arabidopsis thaliana" – definierar ett nytt genetiskt fenomen.',tags:['Genombrott'],major:true},
+  {year:'2012',title:'Prefekt, Sektionen för Beräkningsgenetik, SLU',body:'Chef för nyinrättad sektion vid Institutionen för Kliniska vetenskaper, SLU.',tags:['Befattning'],major:false},
+  {year:'2017',title:'Professor, Beräkningsgenomik, Uppsala Universitet',body:'Befordrad till professor vid IMBIM, Uppsala Universitet.',tags:['Befattning'],major:true},
+  {year:'2017',title:'Nature Genetics – Epistatiska interaktioner, jäst',body:'"Accounting for genetic interactions improves modeling of individual quantitative trait phenotypes in yeast" – med Leonid Kruglyak, UCLA.',tags:['Genombrott'],major:true},
+  {year:'2022',title:'Tjänstledighet & konsultverksamhet',body:'Lämnar aktiv akademisk forskning för att starta konsultverksamhet inom kvantitativ genetik och genomik.',tags:['Övergång'],major:true},
+];
+
+const tl = document.getElementById('timeline');
+events.forEach((ev, i) => {
+  const tags = ev.tags.map(t => `<span class="tl-tag">${t}</span>`).join(' ');
+  const div = document.createElement('div');
+  div.className = 'tl-item';
+  div.style.transitionDelay = (i % 5) * 0.08 + 's';
+  div.innerHTML = `
+    <div class="tl-dot${ev.major?' major':''}"></div>
+    <div class="tl-year">${ev.year}</div>
+    <div class="tl-title">${ev.title}</div>
+    <p class="tl-body">${ev.body}</p>
+    <div style="margin-top:.5rem">${tags}</div>`;
+  tl.appendChild(div);
+});
+
+// ── Intersection Observer ─────────────────────────────────────────────
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('vis');
+      e.target.querySelectorAll('.fund-bar').forEach(b => { b.style.width = b.dataset.w + '%'; });
+      io.unobserve(e.target);
+    }
+  });
+}, {threshold: 0.12});
+
+document.querySelectorAll('.fi').forEach(el => io.observe(el));
+document.querySelectorAll('.tl-item').forEach(el => io.observe(el));
+</script>
+
+<!-- BACK TO MAIN -->
+<a href="steorn-carlborg.html" class="back-home">
+  <svg viewBox="0 0 16 16"><path d="M3.828 7H16v2H3.828l4.95 4.95-1.414 1.414L0 8l7.364-7.364L8.778 2.05z"/></svg>
+  Steorn & Carlborg
+</a>
+
+<script>
+function logout(){
+  sessionStorage.removeItem('sc_auth');
+  window.location.replace('index.html');
+}
+</script>
+</body>
+</html>
