@@ -1,1 +1,103 @@
-
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Steorn & Carlborg</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#0d1410; --paper:#f0f5f2; --sage:#3d5a4f; --sage2:#6a9e8e;
+  --gold:#b8914a; --gold2:#d4aa6a; --mid:rgba(240,245,242,.55);
+  --line:rgba(61,90,79,.22);
+  --serif:'Cormorant Garamond',Georgia,serif;
+  --sans:'Jost',sans-serif;
+}
+html,body{height:100%;margin:0}
+body{
+  background:var(--ink);
+  color:var(--paper);
+  font-family:var(--sans);
+  font-weight:300;
+  display:flex;flex-direction:column;
+  min-height:100vh;
+  overflow-x:hidden;
+}
+/* Ambient background */
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(ellipse 60% 70% at 75% 40%, rgba(61,90,79,.15) 0%,transparent 60%),
+    radial-gradient(ellipse 40% 40% at 15% 80%, rgba(184,145,74,.07) 0%,transparent 50%);
+}
+main{
+  flex:1;display:flex;flex-direction:column;
+  justify-content:center;align-items:center;
+  padding:3rem 2rem;
+  position:relative;z-index:1;
+  text-align:center;
+}
+.wordmark{
+  font-family:var(--serif);
+  font-size:clamp(2.4rem,6vw,4.5rem);
+  font-weight:300;letter-spacing:.04em;
+  line-height:1.1;
+  margin-bottom:.6rem;
+  animation:fadeUp .9s cubic-bezier(.16,1,.3,1) both;
+}
+.wordmark em{font-style:normal;color:var(--sage2)}
+.tagline{
+  font-family:var(--serif);font-style:italic;
+  font-size:clamp(.95rem,2vw,1.25rem);
+  color:var(--sage2);opacity:.85;
+  margin-bottom:2rem;
+  animation:fadeUp .9s cubic-bezier(.16,1,.3,1) .15s both;
+}
+.description{
+  font-size:.9rem;color:var(--mid);
+  max-width:44ch;line-height:1.85;
+  margin-bottom:3rem;
+  animation:fadeUp .9s cubic-bezier(.16,1,.3,1) .28s both;
+}
+.enter-btn{
+  display:inline-flex;align-items:center;gap:.7rem;
+  padding:.8rem 2.2rem;
+  border:1px solid rgba(61,90,79,.5);
+  color:var(--sage2);
+  font-family:var(--sans);font-size:.75rem;
+  letter-spacing:.18em;text-transform:uppercase;
+  text-decoration:none;
+  transition:all .25s;
+  animation:fadeUp .9s cubic-bezier(.16,1,.3,1) .4s both;
+}
+.enter-btn:hover{background:var(--sage);border-color:var(--sage);color:var(--paper)}
+.enter-btn svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2}
+footer{
+  padding:1.5rem 2rem;text-align:center;
+  font-size:.68rem;color:rgba(240,245,242,.25);
+  letter-spacing:.1em;position:relative;z-index:1;
+}
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(16px)}
+  to{opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+<main>
+  <h1 class="wordmark">Steorn <em>&</em> Carlborg</h1>
+  <p class="tagline">Omdöme under komplexitet</p>
+  <p class="description">
+    Strategisk rådgivning i skärningspunkten mellan analytisk stringens 
+    och organisatoriskt ledarskap.
+  </p>
+  <a href="login.html" class="enter-btn">
+    Logga in
+    <svg viewBox="0 0 16 16"><line x1="2" y1="8" x2="14" y2="8"/><polyline points="9,3 14,8 9,13"/></svg>
+  </a>
+</main>
+<footer>Stockholm &amp; Uppsala &nbsp;·&nbsp; Sverige</footer>
+</body>
+</html>
